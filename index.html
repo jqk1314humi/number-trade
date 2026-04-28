@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录 - 系统入口</title>
+    <style>
+        :root {
+            --bg: #f2f4f7;
+            --card-bg: #ffffff;
+            --text: #1a1a1a;
+            --text-secondary: #5f6368;
+            --border: #dde1e6;
+            --border-focus: #1a73e8;
+            --btn-primary: #1a3a5c;
+            --btn-hover: #152e4a;
+            --error-bg: #fef2f2;
+            --error-text: #b91c1c;
+            --error-border: #fecaca;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.1);
+            --radius: 10px;
+            --radius-sm: 6px;
+            --transition: 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 38px 32px 34px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: box-shadow var(--transition);
+        }
+        .login-card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .login-header .icon-wrapper {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: #e8f0fe;
+            margin-bottom: 14px;
+            font-size: 1.5rem;
+        }
+        .login-header h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: 0.2px;
+            margin-bottom: 4px;
+        }
+        .login-header .subtitle {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.2px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+            letter-spacing: 0.2px;
+        }
+        .form-group .input-wrapper {
+            position: relative;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 11px 14px;
+            font-size: 0.9rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition);
+            background: #fafbfc;
+            color: var(--text);
+            letter-spacing: 0.3px;
+            font-family: inherit;
+        }
+        .form-group input:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.08);
+            background: #fff;
+        }
+        .form-group input::placeholder {
+            color: #b0b8c1;
+            letter-spacing: 0.2px;
+        }
+
+        .error-message {
+            display: none;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 13px;
+            margin-bottom: 16px;
+            background: var(--error-bg);
+            border: 1px solid var(--error-border);
+            border-radius: var(--radius-sm);
+            color: var(--error-text);
+            font-size: 0.85rem;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            animation: shakeIn 0.35s ease;
+        }
+        .error-message.show {
+            display: flex;
+        }
+        .error-message .error-icon {
+            flex-shrink: 0;
+            font-size: 1rem;
+        }
+
+        @keyframes shakeIn {
+            0% {
+                opacity: 0;
+                transform: translateX(-6px);
+            }
+            25% {
+                transform: translateX(4px);
+            }
+            50% {
+                transform: translateX(-3px);
+            }
+            75% {
+                transform: translateX(2px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.4px;
+            color: #ffffff;
+            background: var(--btn-primary);
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: background var(--transition), transform 0.1s ease, box-shadow var(--transition);
+            font-family: inherit;
+            outline: none;
+            margin-top: 4px;
+        }
+        .btn-login:hover {
+            background: var(--btn-hover);
+            box-shadow: 0 4px 14px rgba(26, 58, 92, 0.25);
+        }
+        .btn-login:active {
+            transform: scale(0.98);
+            transition: transform 0.1s ease;
+        }
+        .btn-login:focus-visible {
+            outline: 2px solid var(--border-focus);
+            outline-offset: 3px;
+        }
+        .btn-login.loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.75rem;
+            color: #999;
+            letter-spacing: 0.2px;
+        }
+
+        /* 密码可见切换 */
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #888;
+            font-size: 0.85rem;
+            padding: 4px 6px;
+            border-radius: 4px;
+            transition: color var(--transition);
+            line-height: 1;
+        }
+        .toggle-password:hover {
+            color: #333;
+        }
+
+        @media (max-width: 440px) {
+            .login-card {
+                padding: 26px 18px 24px;
+            }
+            .login-header h1 {
+                font-size: 1.2rem;
+            }
+            .btn-login {
+                padding: 11px 16px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #e9ecf1;
+                --card-bg: #ffffff;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="login-card">
+            <!-- 头部 -->
+            <div class="login-header">
+                <div class="icon-wrapper">🔐</div>
+                <h1>系统登录</h1>
+                <p class="subtitle">请输入您的账号和密码</p>
+            </div>
+
+            <!-- 错误提示 -->
+            <div class="error-message" id="errorMessage">
+                <span class="error-icon">⚠️</span>
+                <span id="errorText">账号或密码错误</span>
+            </div>
+
+            <!-- 表单 -->
+            <form id="loginForm" autocomplete="off" novalidate>
+                <div class="form-group">
+                    <label for="username">账号</label>
+                    <input
+                    type="text"
+                    id="username"
+                    placeholder="请输入账号"
+                    autocomplete="off"
+                    spellcheck="false"
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <div class="input-wrapper">
+                        <input
+                        type="password"
+                        id="password"
+                        placeholder="请输入密码"
+                        autocomplete="off"
+                        >
+                        <button
+                        type="button"
+                        class="toggle-password"
+                        id="togglePassword"
+                        title="显示/隐藏密码"
+                        >
+                        👁
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn-login" id="btnLogin">登 录</button>
+        </form>
+
+        <div class="login-footer">
+            <span>数据安全加密传输</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ==================== 预设账号密码（在此处修改） ====================
+        // 👇 修改下面两个值即可更换登录凭证
+        const CORRECT_USERNAME = 'admin';
+        const CORRECT_PASSWORD = 'admin123';
+        // ==================== 以上为可修改部分 ====================
+
+        // DOM 元素
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const btnLogin = document.getElementById('btnLogin');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        const togglePassword = document.getElementById('togglePassword');
+
+        // 状态
+        let isSubmitting = false;
+        let errorTimeout = null;
+
+        // 隐藏错误提示
+        function hideError() {
+            errorMessage.classList.remove('show');
+            if (errorTimeout) {
+                clearTimeout(errorTimeout);
+                errorTimeout = null;
+            }
+        }
+
+        // 显示错误提示
+        function showError(msg) {
+            if (errorTimeout) clearTimeout(errorTimeout);
+            errorText.textContent = msg || '账号或密码错误';
+            errorMessage.classList.add('show');
+            // 3秒后自动隐藏
+            errorTimeout = setTimeout(() => {
+                errorMessage.classList.remove('show');
+                errorTimeout = null;
+            }, 3000);
+        }
+
+        // 提交处理
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (isSubmitting) return;
+
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+
+            // 空值校验
+            if (!username) {
+                showError('请输入账号');
+                usernameInput.focus();
+                return;
+            }
+            if (!password) {
+                showError('请输入密码');
+                passwordInput.focus();
+                return;
+            }
+
+            hideError();
+
+            // 验证
+            if (username === CORRECT_USERNAME && password === CORRECT_PASSWORD) {
+                // 登录成功
+                isSubmitting = true;
+                btnLogin.textContent = '验证通过…';
+                btnLogin.classList.add('loading');
+
+                // 模拟短暂延迟后跳转（更自然的体验）
+                setTimeout(() => {
+                    window.location.href = 'count.html';
+                }, 400);
+            } else {
+                // 登录失败
+                showError('账号或密码错误');
+                // 抖动输入框焦点
+                passwordInput.focus();
+                // 选中密码方便重新输入
+                passwordInput.select();
+            }
+        });
+
+        // 输入时隐藏错误
+        usernameInput.addEventListener('input', function() {
+            if (errorMessage.classList.contains('show')) {
+                hideError();
+            }
+        });
+        passwordInput.addEventListener('input', function() {
+            if (errorMessage.classList.contains('show')) {
+                hideError();
+            }
+        });
+
+        // 密码可见性切换
+        togglePassword.addEventListener('click', function() {
+            const isPassword = passwordInput.type === 'password';
+            passwordInput.type = isPassword ? 'text' : 'password';
+            togglePassword.textContent = isPassword ? '🙈' : '👁';
+            togglePassword.title = isPassword ? '隐藏密码' : '显示密码';
+            passwordInput.focus();
+        });
+
+        // 回车键快速提交
+        usernameInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                passwordInput.focus();
+            }
+        });
+        passwordInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                loginForm.dispatchEvent(new Event('submit', { cancelable: true }));
+            }
+        });
+
+        // 页面加载后聚焦账号输入框
+        setTimeout(() => {
+            usernameInput.focus();
+        }, 300);
+
+        console.log('✅ 登录页面已就绪');
+        console.log('   📌 预设账号: ' + CORRECT_USERNAME);
+        console.log('   🔑 预设密码: ' + CORRECT_PASSWORD);
+        console.log('   🎯 登录成功后跳转至: count.html');
+        console.log('   ✏️ 修改账号密码请编辑代码顶部 CORRECT_USERNAME 和 CORRECT_PASSWORD');
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>市场需求竞争与跨境调动预算计算器</title>
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --primary: #1a73e8;
+            --primary-dark: #1557b0;
+            --danger: #d93025;
+            --warning: #f29900;
+            --success: #0d904f;
+            --border: #e0e4e8;
+            --text: #202124;
+            --text-secondary: #5f6368;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: 0.2s ease;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .app-header {
+            background: linear-gradient(135deg, #1a3a5c 0%, #1a5276 40%, #1a73e8 100%);
+            color: #fff;
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .app-header h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+        .header-badges {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .badge.warning-badge {
+            background: #f29900;
+            border-color: #f29900;
+            color: #000;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(242, 153, 0, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 0 14px rgba(242, 153, 0, 0);
+            }
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            gap: 20px;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 22px 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        .card-header {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-header .icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .icon-blue {
+            background: #e8f0fe;
+            color: #1a73e8;
+        }
+        .icon-green {
+            background: #e6f4ea;
+            color: #0d904f;
+        }
+        .icon-orange {
+            background: #fef7e0;
+            color: #f29900;
+        }
+        .icon-red {
+            background: #fce8e6;
+            color: #d93025;
+        }
+        .tabs {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+            background: #f5f6f8;
+            border-radius: 10px;
+            padding: 5px;
+        }
+        .tab-btn {
+            padding: 9px 18px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            color: var(--text-secondary);
+            white-space: nowrap;
+        }
+        .tab-btn.active {
+            background: #fff;
+            color: var(--primary);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.6);
+            color: var(--text);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .input-group label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            min-width: 70px;
+            color: var(--text-secondary);
+        }
+        .input-group input,
+        .input-group select {
+            padding: 9px 14px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            width: 120px;
+            transition: var(--transition);
+            background: #fafbfc;
+        }
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12);
+            background: #fff;
+        }
+        .input-group input.small-input {
+            width: 80px;
+        }
+        .input-group input.wide-input {
+            width: 150px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin: 8px 0;
+        }
+        table th,
+        table td {
+            padding: 8px 10px;
+            text-align: center;
+            border: 1px solid #e8eaed;
+            white-space: nowrap;
+        }
+        table th {
+            background: #f5f6f8;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            position: sticky;
+            top: 0;
+        }
+        table tbody tr:hover {
+            background: #fafcfd;
+        }
+        table input {
+            width: 80px;
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.85rem;
+            transition: var(--transition);
+        }
+        table input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
+        }
+        .result-cell {
+            font-weight: 700;
+            color: var(--primary);
+            background: #f8fafd;
+        }
+        .result-highlight {
+            background: #fffde7;
+            font-weight: 700;
+            color: #e65100;
+        }
+        .budget-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin: 16px 0;
+        }
+        .budget-card {
+            background: linear-gradient(135deg, #f8fafd 0%, #fff 100%);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px;
+            text-align: center;
+            transition: var(--transition);
+        }
+        .budget-card.featured {
+            border-color: var(--primary);
+            box-shadow: 0 4px 16px rgba(26, 115, 232, 0.15);
+        }
+        .budget-card h3 {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        .budget-card .amount {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #1a3a5c;
+        }
+        .budget-card.featured .amount {
+            color: var(--primary);
+        }
+        .budget-card .subtitle {
+            font-size: 0.75rem;
+            color: #888;
+            margin-top: 4px;
+        }
+        .alert {
+            padding: 12px 18px;
+            border-radius: var(--radius-sm);
+            margin: 10px 0;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .alert-warning {
+            background: #fef7e0;
+            border: 1px solid #f9ab00;
+            color: #8a5d00;
+        }
+        .alert-info {
+            background: #e8f0fe;
+            border: 1px solid #4285f4;
+            color: #1a3a5c;
+        }
+        .alert-danger {
+            background: #fce8e6;
+            border: 1px solid #d93025;
+            color: #a50e0e;
+        }
+        .btn {
+            padding: 10px 22px;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: var(--transition);
+            letter-spacing: 0.3px;
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+        }
+        .btn-outline {
+            background: #fff;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        .btn-outline:hover {
+            background: #e8f0fe;
+        }
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 900px) {
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+            .budget-summary {
+                grid-template-columns: 1fr;
+            }
+            table {
+                font-size: 0.7rem;
+            }
+            table th,
+            table td {
+                padding: 4px 5px;
+            }
+            .app-header h1 {
+                font-size: 1.1rem;
+            }
+        }
+        .scrollable-table {
+            overflow-x: auto;
+            max-height: 500px;
+            overflow-y: auto;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+        }
+        .section-divider {
+            border: none;
+            border-top: 2px dashed #e0e4e8;
+            margin: 20px 0;
+        }
+        .tooltip {
+            position: relative;
+            cursor: help;
+            border-bottom: 1px dotted #888;
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <h1>📊 市场需求竞争与跨境调动预算计算器</h1>
+        <div class="header-badges" id="headerBadges">
+            <span class="badge" id="quarterBadge">📅 季度: <strong id="quarterDisplay">4</strong></span>
+            <span class="badge" id="orderBadge">📦 订单获取中</span>
+            <span class="badge warning-badge" id="alertBadge" style="display:none;">⚠️ 提醒</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- 顶部设置区 -->
+        <div class="card">
+            <div class="card-header"><span class="icon icon-blue">⚙️</span> 基本设置</div>
+            <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
+                <div class="input-group">
+                    <label>当前季度:</label>
+                    <select id="currentQuarter" onchange="updateAll()">
+                        <option value="1">第1季度</option><option value="2">第2季度</option>
+                        <option value="3">第3季度</option><option value="4" selected>第4季度</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>订单获取中:</label>
+                    <select id="isOrderActive" onchange="updateAll()">
+                        <option value="1" selected>是 (1)</option><option value="0">不是 (0)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>预期预算:</label>
+                    <input type="number" id="expectedBudget" value="8000000" step="100000" onchange="updateAll()" class="wide-input">
+                </div>
+                <div class="input-group">
+                    <label>汇率(USD/CNY):</label>
+                    <input type="number" id="exchangeRate" value="7.18" step="0.01" onchange="updateAll()" style="width:100px;">
+                </div>
+                <div class="input-group">
+                    <label>关税税率:</label>
+                    <input type="number" id="tariffRate" value="0.0563" step="0.0001" onchange="updateAll()" style="width:100px;">
+                </div>
+            </div>
+            <div id="alertMessages" style="margin-top:10px;"></div>
+        </div>
+
+        <!-- 三大市场数据输入 -->
+        <div class="card">
+            <div class="card-header"><span class="icon icon-blue">🏪</span> 三大市场数据输入（淘货 / 全球贸易通 / 音符直播）</div>
+            <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;">
+                <div class="input-group">
+                    <label>淘货人数:</label>
+                    <input type="number" id="taohuoPeople" value="12" min="1" onchange="syncPeople('taohuo')" style="width:90px;">
+                </div>
+                <div class="input-group">
+                    <label>全球贸易通人数:</label>
+                    <input type="number" id="globalPeople" value="12" min="1" onchange="syncPeople('global')" style="width:90px;">
+                </div>
+                <div class="input-group">
+                    <label>音符直播人数:</label>
+                    <input type="number" id="yinFuPeople" value="12" min="1" onchange="syncPeople('yinfu')" style="width:90px;">
+                </div>
+                <button class="btn btn-outline" onclick="resetMarketData()">🔄 重置市场数据</button>
+            </div>
+            <div class="scrollable-table">
+                <table id="marketTable">
+                    <thead>
+                        <tr>
+                            <th>产品</th>
+                            <th>淘货<br>市场总需求</th>
+                            <th>淘货<br>需求期望(季)</th>
+                            <th>全球贸易通<br>市场总需求</th>
+                            <th>全球贸易通<br>需求期望(季)</th>
+                            <th>音符直播<br>市场总需求</th>
+                            <th>音符直播<br>需求期望(季)</th>
+                            <th>单价(¥)</th>
+                            <th>赛时进货倍率</th>
+                        </tr>
+                    </thead>
+                    <tbody id="marketTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 三种预算方式结果 -->
+        <div class="card">
+            <div class="card-header"><span class="icon icon-green">💰</span> 三种预算计算方式对比</div>
+            <div class="budget-summary" id="budgetSummary"></div>
+            <div class="scrollable-table">
+                <table id="budgetDetailTable">
+                    <thead>
+                        <tr>
+                            <th>产品</th>
+                            <th>方式1总需求<br>(2淘货2全球)</th>
+                            <th>方式1<br>实时选品量</th>
+                            <th>方式1<br>进货预算</th>
+                            <th>方式2总需求<br>(1淘货2全球+音符)</th>
+                            <th>方式2<br>实时选品量</th>
+                            <th>方式2<br>进货预算</th>
+                            <th>方式3总需求<br>(1淘货+1音符)</th>
+                            <th>方式3<br>实时选品量</th>
+                            <th>方式3<br>进货预算</th>
+                        </tr>
+                    </thead>
+                    <tbody id="budgetDetailBody"></tbody>
+                </table>
+            </div>
+            <div style="margin-top:12px;padding:12px;background:#f8fafd;border-radius:8px;">
+                <strong>📋 预算差值分析（相对于预期预算 <span id="expectedBudgetDisplay">8,000,000</span> 元）：</strong>
+                <div id="budgetDiffAnalysis" style="margin-top:8px;"></div>
+            </div>
+        </div>
+
+        <!-- 跨境调动花费计算 -->
+        <div class="card">
+            <div class="card-header"><span class="icon icon-orange">🚢</span> 跨境调动花费计算</div>
+            <div class="input-group" style="margin-bottom:12px;">
+                <label>选用预算方式:</label>
+                <select id="crossBorderBudgetMode" onchange="updateCrossBorder()">
+                    <option value="0">方式1 - 2淘货2全球</option>
+                    <option value="1">方式2 - 1淘货2全球+音符</option>
+                    <option value="2" selected>方式3 - 1淘货+1音符</option>
+                </select>
+            </div>
+            <div class="scrollable-table">
+                <table id="crossBorderTable">
+                    <thead>
+                        <tr>
+                            <th>产品</th><th>个数</th><th>体积(m³)</th><th>体积运费</th><th>重量运费</th>
+                            <th>实际运费</th><th>原材料价格</th><th>保险费</th><th>装箱费分摊</th>
+                        </tr>
+                    </thead>
+                    <tbody id="crossBorderBody"></tbody>
+                </table>
+            </div>
+            <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;background:#fffde7;padding:14px 18px;border-radius:8px;">
+                <strong>📦 总费用(人民币):</strong>
+                <span style="font-size:1.5rem;font-weight:800;color:#d93025;" id="totalCostCNY">0.00</span>
+                <strong>💵 总费用(美元):</strong>
+                <span style="font-size:1.5rem;font-weight:800;color:#1a73e8;" id="totalCostUSD">0.00</span>
+                <span style="color:#888;font-size:0.8rem;">(含关税)</span>
+            </div>
+        </div>
+
+        <!-- 电子狗 / 智能车机 / 安全座椅 -->
+        <div class="grid-2col">
+            <div class="card">
+                <div class="card-header"><span class="icon icon-red">🐕</span> 电子狗计算</div>
+                <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+                    <label>已有机器:</label><input type="number" id="dogExisting" value="1" min="0" onchange="updateSpecialCalc()" class="small-input">
+                    <label>需求量:</label><input type="number" id="dogDemand" value="140" min="0" onchange="updateSpecialCalc()" class="small-input">
+                    <label>预期机器:</label><input type="number" id="dogExpected" value="1" min="0" onchange="updateSpecialCalc()" class="small-input">
+                </div>
+                <div style="margin-top:8px;font-size:0.9rem;" id="dogResult"></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span class="icon icon-red">🚗</span> 智能车机计算</div>
+                <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+                    <label>已有机器:</label><input type="number" id="carExisting" value="0" min="0" onchange="updateSpecialCalc()" class="small-input">
+                    <label>需求量:</label><input type="number" id="carDemand" value="155" min="0" onchange="updateSpecialCalc()" class="small-input">
+                    <label>预期机器:</label><input type="number" id="carExpected" value="1" min="0" onchange="updateSpecialCalc()" class="small-input">
+                </div>
+                <div style="margin-top:8px;font-size:0.9rem;" id="carResult"></div>
+            </div>
+            <div class="card" style="grid-column:1/-1;">
+                <div class="card-header"><span class="icon icon-red">💺</span> 安全座椅计算</div>
+                <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+                    <label>已有机器:</label><input type="number" id="seatExisting" value="0" min="0" onchange="updateSpecialCalc()" class="small-input">
+                    <label>需求量:</label><input type="number" id="seatDemand" value="140" min="0" onchange="updateSpecialCalc()" class="small-input">
+                    <label>预期机器:</label><input type="number" id="seatExpected" value="1" min="0" onchange="updateSpecialCalc()" class="small-input">
+                </div>
+                <div style="margin-top:8px;font-size:0.9rem;" id="seatResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== 产品数据定义 ====================
+        const products = [
+            { name: '座椅', unitPrice: 750, volCoef: 124000, weightCoef: 6, isSpecial: false },
+            { name: '车', unitPrice: 500, volCoef: 4500, weightCoef: 0.85, isSpecial: false },
+            { name: '狗', unitPrice: 440, volCoef: 1000, weightCoef: 0.2, isSpecial: false },
+            { name: '螺蛳粉', unitPrice: 35, volCoef: 120, weightCoef: 0.1, isSpecial: false },
+            { name: '冷面', unitPrice: 42, volCoef: 120, weightCoef: 0.1, isSpecial: false },
+            { name: '馒头', unitPrice: 25, volCoef: 100, weightCoef: 0.08, isSpecial: false },
+            { name: 'T恤', unitPrice: 128, volCoef: 500, weightCoef: 0.15, isSpecial: false },
+            { name: '衬衫', unitPrice: 169, volCoef: 500, weightCoef: 0.2, isSpecial: false },
+            { name: '皮衣', unitPrice: 198, volCoef: 1000, weightCoef: 0.8, isSpecial: false },
+            { name: '电视', unitPrice: 3499, volCoef: 150000, weightCoef: 9, isSpecial: false },
+            { name: '消毒', unitPrice: 218, volCoef: 30000, weightCoef: 5, isSpecial: false },
+            { name: '吸尘', unitPrice: 499, volCoef: 40000, weightCoef: 1.5, isSpecial: false },
+            { name: '7000', unitPrice: 8699, volCoef: 4000, weightCoef: 2.5, isSpecial: true },
+            { name: '学习', unitPrice: 5200, volCoef: 3000, weightCoef: 1.8, isSpecial: true },
+            { name: '尼康', unitPrice: 6199, volCoef: 1260, weightCoef: 2, isSpecial: true },
+        ];
+
+        // 默认市场数据 [淘货总需求, 全球总需求, 音符总需求, 倍率]
+        const defaultMarketData = [
+            { taohuo: 3120, global: 3120, yinfu: 0, rate: 1 },
+            { taohuo: 2160, global: 2160, yinfu: 0, rate: 1 },
+            { taohuo: 1920, global: 1920, yinfu: 0, rate: 1 },
+            { taohuo: 4224, global: 4224, yinfu: 0, rate: 8 },
+            { taohuo: 4928, global: 4928, yinfu: 0, rate: 8 },
+            { taohuo: 6160, global: 6160, yinfu: 0, rate: 8 },
+            { taohuo: 1936, global: 1936, yinfu: 0, rate: 1 },
+            { taohuo: 1760, global: 1760, yinfu: 0, rate: 1 },
+            { taohuo: 2112, global: 2112, yinfu: 0, rate: 1 },
+            { taohuo: 53, global: 53, yinfu: 0, rate: 2 },
+            { taohuo: 528, global: 528, yinfu: 0, rate: 1 },
+            { taohuo: 352, global: 352, yinfu: 0, rate: 1 },
+            { taohuo: 18, global: 18, yinfu: 0, rate: 1 },
+            { taohuo: 18, global: 18, yinfu: 0, rate: 1 },
+            { taohuo: 35, global: 35, yinfu: 0, rate: 1 },
+        ];
+
+        // 当前市场数据（可被用户修改）
+        let marketData = JSON.parse(JSON.stringify(defaultMarketData));
+
+        // ==================== 初始化 ====================
+        function init() {
+            buildMarketTable();
+            updateAll();
+        }
+
+        function buildMarketTable() {
+            const tbody = document.getElementById('marketTableBody');
+            tbody.innerHTML = products.map((p, i) => {
+                const md = marketData[i];
+                return `
+                <tr>
+                    <td style="font-weight:700;">${p.name}</td>
+                    <td><input type="number" id="taohuo_${i}" value="${md.taohuo}" min="0" onchange="updateMarketData(${i},'taohuo')"></td>
+                    <td class="result-cell" id="taohuoExp_${i}">-</td>
+                    <td><input type="number" id="global_${i}" value="${md.global}" min="0" onchange="updateMarketData(${i},'global')"></td>
+                    <td class="result-cell" id="globalExp_${i}">-</td>
+                    <td><input type="number" id="yinfu_${i}" value="${md.yinfu}" min="0" onchange="updateMarketData(${i},'yinfu')"></td>
+                    <td class="result-cell" id="yinfuExp_${i}">-</td>
+                    <td style="font-weight:600;">${p.unitPrice}</td>
+                    <td><input type="number" id="rate_${i}" value="${md.rate}" step="0.01" min="0.01" onchange="updateMarketData(${i},'rate')" style="width:80px;"></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function updateMarketData(index, field) {
+            const val = parseFloat(document.getElementById(field + '_' + index)?.value) || 0;
+            marketData[index][field] = val;
+            updateAll();
+        }
+
+        function syncPeople(source) {
+            const val = document.getElementById(source === 'taohuo' ? 'taohuoPeople' : source === 'global' ?
+                'globalPeople' : 'yinFuPeople').value;
+            if (source === 'taohuo') {
+                document.getElementById('globalPeople').value = val;
+                document.getElementById('yinFuPeople').value = val;
+            } else if (source === 'global') {
+                document.getElementById('taohuoPeople').value = val;
+                document.getElementById('yinFuPeople').value = val;
+            } else {
+                document.getElementById('taohuoPeople').value = val;
+                document.getElementById('globalPeople').value = val;
+            }
+            updateAll();
+        }
+
+        function resetMarketData() {
+            marketData = JSON.parse(JSON.stringify(defaultMarketData));
+            document.getElementById('taohuoPeople').value = 12;
+            document.getElementById('globalPeople').value = 12;
+            document.getElementById('yinFuPeople').value = 12;
+            buildMarketTable();
+            updateAll();
+        }
+
+        // ==================== 核心计算 ====================
+        function getPeople() {
+            return {
+                taohuo: parseInt(document.getElementById('taohuoPeople').value) || 12,
+                global: parseInt(document.getElementById('globalPeople').value) || 12,
+                yinfu: parseInt(document.getElementById('yinFuPeople').value) || 12,
+            };
+        }
+
+        function calcDemandExpectation(totalDemand, people, isSpecial) {
+            if (people <= 0) return 0;
+            let val = Math.round(totalDemand / (people * 4));
+            if (isSpecial) val += 1;
+            return val;
+        }
+
+        function updateAll() {
+            const people = getPeople();
+            const quarter = parseInt(document.getElementById('currentQuarter').value);
+            const isOrderActive = parseInt(document.getElementById('isOrderActive').value);
+            const expectedBudget = parseFloat(document.getElementById('expectedBudget').value) || 8000000;
+
+            // 更新显示
+            document.getElementById('quarterDisplay').textContent = quarter;
+            document.getElementById('expectedBudgetDisplay').textContent = expectedBudget.toLocaleString(
+            'zh-CN');
+
+            // 提醒信息
+            const alertMsgs = [];
+            const alertBadge = document.getElementById('alertBadge');
+            if (isOrderActive === 1) {
+                alertMsgs.push({ msg: '⚠️ 注意提醒跨境调仓！！！！！', type: 'alert-danger' });
+            }
+            if (quarter === 4) {
+                alertMsgs.push({ msg: '⚠️ 注意提醒入驻京西！', type: 'alert-warning' });
+            }
+            document.getElementById('alertMessages').innerHTML = alertMsgs.map(a =>
+                `<div class="alert ${a.type}">${a.msg}</div>`
+            ).join('');
+            alertBadge.style.display = alertMsgs.length > 0 ? 'inline-flex' : 'none';
+            if (alertMsgs.length > 0) {
+                alertBadge.textContent = alertMsgs.map(a => a.msg.replace('⚠️ ', '')).join(' | ');
+            }
+
+            // 更新订单获取中badge
+            const orderBadge = document.getElementById('orderBadge');
+            orderBadge.textContent = isOrderActive === 1 ? '📦 订单获取中' : '📦 订单未获取';
+            orderBadge.style.background = isOrderActive === 1 ? 'rgba(211,47,47,0.25)' : 'rgba(255,255,255,0.15)';
+
+            // 计算各产品的需求期望
+            const demandExps = products.map((p, i) => ({
+                taohuo: calcDemandExpectation(marketData[i].taohuo, people.taohuo, p.isSpecial),
+                global: calcDemandExpectation(marketData[i].global, people.global, p.isSpecial),
+                yinfu: calcDemandExpectation(marketData[i].yinfu, people.yinfu, p.isSpecial),
+                rate: marketData[i].rate,
+                unitPrice: p.unitPrice,
+                name: p.name,
+                isSpecial: p.isSpecial,
+            }));
+
+            // 更新市场表格
+            demandExps.forEach((d, i) => {
+                const te = document.getElementById('taohuoExp_' + i);
+                const ge = document.getElementById('globalExp_' + i);
+                const ye = document.getElementById('yinfuExp_' + i);
+                if (te) te.textContent = d.taohuo;
+                if (ge) ge.textContent = d.global;
+                if (ye) ye.textContent = d.yinfu;
+            });
+
+            // 三种预算方式的总需求
+            // 方式1: (淘货需求期望 + 全球需求期望) * 2
+            // 方式2: 淘货需求期望 + 2*全球需求期望 + 音符需求期望
+            // 方式3: 淘货需求期望 + 音符需求期望
+            const methodNames = ['2淘货2全球', '1淘货2全球+音符', '1淘货+1音符'];
+            const totalDemands = demandExps.map(d => ({
+                m1: (d.taohuo + d.global) * 2,
+                m2: d.taohuo + 2 * d.global + d.yinfu,
+                m3: d.taohuo + d.yinfu,
+            }));
+
+            // 实时选品量 = 总需求 * 倍率
+            const selectQtys = totalDemands.map((td, i) => ({
+                m1: Math.round(td.m1 * demandExps[i].rate),
+                m2: Math.round(td.m2 * demandExps[i].rate),
+                m3: Math.round(td.m3 * demandExps[i].rate),
+            }));
+
+            // 进货预算 = 实时选品量 * 单价
+            const budgets = selectQtys.map((sq, i) => ({
+                m1: sq.m1 * demandExps[i].unitPrice,
+                m2: sq.m2 * demandExps[i].unitPrice,
+                m3: sq.m3 * demandExps[i].unitPrice,
+            }));
+
+            // 总预算
+            const totalBudget1 = budgets.reduce((sum, b) => sum + b.m1, 0);
+            const totalBudget2 = budgets.reduce((sum, b) => sum + b.m2, 0);
+            const totalBudget3 = budgets.reduce((sum, b) => sum + b.m3, 0);
+
+            // 显示预算总结
+            document.getElementById('budgetSummary').innerHTML = `
+                <div class="budget-card">
+                    <h3>📊 方式1: 2淘货2全球</h3>
+                    <div class="amount">¥${totalBudget1.toLocaleString('zh-CN', {minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+                    <div class="subtitle">总需求 = (淘货期望 + 全球期望) × 2</div>
+                </div>
+                <div class="budget-card featured">
+                    <h3>⭐ 方式2: 1淘货2全球+音符</h3>
+                    <div class="amount">¥${totalBudget2.toLocaleString('zh-CN', {minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+                    <div class="subtitle">总需求 = 淘货期望 + 2×全球期望 + 音符期望</div>
+                </div>
+                <div class="budget-card">
+                    <h3>📊 方式3: 1淘货+1音符</h3>
+                    <div class="amount">¥${totalBudget3.toLocaleString('zh-CN', {minimumFractionDigits:2,maximumFractionDigits:2})}</div>
+                    <div class="subtitle">总需求 = 淘货期望 + 音符期望</div>
+                </div>
+            `;
+
+            // 详细表格
+            const detailBody = document.getElementById('budgetDetailBody');
+            detailBody.innerHTML = demandExps.map((d, i) => `
+                <tr>
+                    <td style="font-weight:700;">${d.name}</td>
+                    <td>${totalDemands[i].m1}</td>
+                    <td>${selectQtys[i].m1}</td>
+                    <td class="result-cell">¥${budgets[i].m1.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                    <td>${totalDemands[i].m2}</td>
+                    <td>${selectQtys[i].m2}</td>
+                    <td class="result-cell">¥${budgets[i].m2.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                    <td>${totalDemands[i].m3}</td>
+                    <td>${selectQtys[i].m3}</td>
+                    <td class="result-cell">¥${budgets[i].m3.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                </tr>
+            `).join('') + `
+                <tr style="font-weight:800;background:#fffde7;">
+                    <td>📌 总预算</td>
+                    <td colspan="2" class="result-highlight">¥${totalBudget1.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                    <td></td>
+                    <td colspan="2" class="result-highlight">¥${totalBudget2.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                    <td></td>
+                    <td colspan="2" class="result-highlight">¥${totalBudget3.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                </tr>
+            `;
+
+            // 预算差值分析
+            // 第1季度使用方式2(C列)，第2-4季度使用方式3(D列)
+            let diffQuarter1, diffQuarter2, diffQuarter3, diffQuarter4;
+            diffQuarter1 = Math.abs(totalBudget2 - expectedBudget);
+            diffQuarter2 = Math.abs(totalBudget3 - expectedBudget);
+            diffQuarter3 = Math.abs(totalBudget3 - expectedBudget);
+            diffQuarter4 = Math.abs(totalBudget3 - expectedBudget);
+
+            const diffDiv = document.getElementById('budgetDiffAnalysis');
+            diffDiv.innerHTML = `
+                <table style="width:100%;font-size:0.85rem;">
+                    <tr>
+                        <th>季度</th><th>推荐策略</th><th>预算金额</th><th>与预期预算差值</th><th>状态</th>
+                    </tr>
+                    <tr>
+                        <td>第1季度</td><td>方式2 (1淘货2全球+音符)</td>
+                        <td class="result-cell">¥${totalBudget2.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                        <td>¥${diffQuarter1.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                        <td>${diffQuarter1 < expectedBudget*0.05 ? '✅ 接近' : diffQuarter1 < expectedBudget*0.15 ? '⚠️ 有偏差' : '🔴 偏差较大'}</td>
+                    </tr>
+                    <tr>
+                        <td>第2季度</td><td>方式3 (1淘货+1音符)</td>
+                        <td class="result-cell">¥${totalBudget3.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                        <td>¥${diffQuarter2.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                        <td>${diffQuarter2 < expectedBudget*0.05 ? '✅ 接近' : diffQuarter2 < expectedBudget*0.15 ? '⚠️ 有偏差' : '🔴 偏差较大'}</td>
+                    </tr>
+                    <tr>
+                        <td>第3季度</td><td>方式3 (1淘货+1音符)</td>
+                        <td class="result-cell">¥${totalBudget3.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                        <td>¥${diffQuarter3.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                        <td>${diffQuarter3 < expectedBudget*0.05 ? '✅ 接近' : diffQuarter3 < expectedBudget*0.15 ? '⚠️ 有偏差' : '🔴 偏差较大'}</td>
+                    </tr>
+                    <tr>
+                        <td>第4季度</td><td>方式3 (1淘货+1音符)</td>
+                        <td class="result-cell">¥${totalBudget3.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                        <td>¥${diffQuarter4.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                        <td>${diffQuarter4 < expectedBudget*0.05 ? '✅ 接近' : diffQuarter4 < expectedBudget*0.15 ? '⚠️ 有偏差' : '🔴 偏差较大'}</td>
+                    </tr>
+                </table>
+            `;
+
+            // 存储计算结果供跨境调动使用
+            window._cachedSelectQtys = selectQtys;
+            window._cachedDemandExps = demandExps;
+
+            // 更新跨境调动
+            updateCrossBorder();
+            updateSpecialCalc();
+        }
+
+        // ==================== 跨境调动花费 ====================
+        function updateCrossBorder() {
+            const selectQtys = window._cachedSelectQtys;
+            const demandExps = window._cachedDemandExps;
+            if (!selectQtys || !demandExps) return;
+
+            const mode = parseInt(document.getElementById('crossBorderBudgetMode').value);
+            const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 7.18;
+            const tariffRate = parseFloat(document.getElementById('tariffRate').value) || 0.0563;
+
+            // 获取各产品的个数：前3个(座椅、车、狗)可能为0或手动设置，其余使用实时选品量
+            const quantities = products.map((p, i) => {
+                if (i < 3) {
+                    // 座椅、车、狗：尝试从输入获取，否则使用实时选品量
+                    const inputEl = document.getElementById('cb_qty_' + i);
+                    if (inputEl && inputEl.value !== '') {
+                        return parseFloat(inputEl.value) || 0;
+                    }
+                    // 默认使用对应方式的实时选品量
+                    return mode === 0 ? selectQtys[i].m1 : mode === 1 ? selectQtys[i].m2 : selectQtys[i]
+                        .m3;
+                }
+                return mode === 0 ? selectQtys[i].m1 : mode === 1 ? selectQtys[i].m2 : selectQtys[i].m3;
+            });
+
+            const volumes = products.map((p, i) => p.volCoef * quantities[i]);
+            const volFreights = products.map((p, i) => volumes[i] * 0.004);
+            const weightFreights = products.map((p, i) => p.weightCoef * quantities[i] * 4);
+            const actualFreights = products.map((p, i) => Math.max(volFreights[i], weightFreights[i]));
+            const rawMaterialCosts = products.map((p, i) => quantities[i] * p.unitPrice);
+            const insuranceCosts = products.map((p, i) => (rawMaterialCosts[i] + actualFreights[i]) * 1.1 * 0.012);
+
+            // 装箱费
+            const totalVolume = volumes.reduce((s, v) => s + v, 0);
+            const packingFee = Math.ceil(totalVolume / 54000000) * 100;
+
+            // 总费用
+            const sumH = insuranceCosts.reduce((s, v) => s + v, 0);
+            const sumF = actualFreights.reduce((s, v) => s + v, 0);
+            const sumG = rawMaterialCosts.reduce((s, v) => s + v, 0);
+            const totalCostCNY = Math.floor((sumH + packingFee + sumF + sumG + 450) * 100) / 100;
+            const totalCostUSD = totalCostCNY / exchangeRate * (1 + tariffRate);
+
+            document.getElementById('totalCostCNY').textContent = '¥' + totalCostCNY.toLocaleString('zh-CN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+            document.getElementById('totalCostUSD').textContent = '$' + totalCostUSD.toLocaleString('zh-CN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
+            // 更新跨境调动表格
+            const cbBody = document.getElementById('crossBorderBody');
+            cbBody.innerHTML = products.map((p, i) => `
+                <tr>
+                    <td style="font-weight:700;">${p.name}</td>
+                    <td>${i < 3 ? `<input type="number" id="cb_qty_${i}" value="${quantities[i]}" step="1" min="0" onchange="updateCrossBorder()" style="width:80px;">` : quantities[i]}</td>
+                    <td>${volumes[i].toLocaleString('zh-CN',{maximumFractionDigits:0})}</td>
+                    <td>${volFreights[i].toFixed(2)}</td>
+                    <td>${weightFreights[i].toFixed(2)}</td>
+                    <td style="font-weight:600;">${actualFreights[i].toFixed(2)}</td>
+                    <td>${rawMaterialCosts[i].toLocaleString('zh-CN',{maximumFractionDigits:0})}</td>
+                    <td>${insuranceCosts[i].toFixed(2)}</td>
+                    <td>${i===0 ? packingFee.toFixed(2) : '-'}</td>
+                </tr>
+            `).join('') + `
+                <tr style="font-weight:800;background:#fffde7;">
+                    <td colspan="3">📦 合计</td>
+                    <td>${volFreights.reduce((s,v)=>s+v,0).toFixed(2)}</td>
+                    <td>${weightFreights.reduce((s,v)=>s+v,0).toFixed(2)}</td>
+                    <td>${sumF.toFixed(2)}</td>
+                    <td>${sumG.toLocaleString('zh-CN',{maximumFractionDigits:0})}</td>
+                    <td>${sumH.toFixed(2)}</td>
+                    <td>${packingFee.toFixed(2)}</td>
+                </tr>
+            `;
+        }
+
+        // ==================== 特殊产品计算 ====================
+        function updateSpecialCalc() {
+            // 电子狗
+            const dogExisting = parseInt(document.getElementById('dogExisting').value) || 1;
+            const dogDemand = parseInt(document.getElementById('dogDemand').value) || 140;
+            const dogExpected = parseInt(document.getElementById('dogExpected').value) || 1;
+            calcSpecial('dog', dogExisting, dogDemand, dogExpected, 1.35, 1.5, 440, 1100, 135000, 'dogResult');
+
+            // 智能车机
+            const carExisting = parseInt(document.getElementById('carExisting').value) || 0;
+            const carDemand = parseInt(document.getElementById('carDemand').value) || 155;
+            const carExpected = parseInt(document.getElementById('carExpected').value) || 1;
+            calcSpecial('car', carExisting, carDemand, carExpected, 1.52, 0.5 / 0.3, 500, 1250, 152000, 'carResult');
+
+            // 安全座椅
+            const seatExisting = parseInt(document.getElementById('seatExisting').value) || 0;
+            const seatDemand = parseInt(document.getElementById('seatDemand').value) || 140;
+            const seatExpected = parseInt(document.getElementById('seatExpected').value) || 1;
+            calcSpecial('seat', seatExisting, seatDemand, seatExpected, 1.68, 0.7 / 0.5, 750, 1875, 168000, 'seatResult');
+        }
+
+        function calcSpecial(type, existing, demand, expected, coefA, coefB, unitCost, sellPrice, machineCost, resultId) {
+            const mid1 = Math.pow(coefA * expected, 0.7);
+            const mid2 = demand / (coefB * 63 * 0.9 * mid1);
+            const recommendedWorkers = Math.round(Math.pow(mid2, 10 / 3));
+            const totalCost = Math.ceil(unitCost * demand / 0.9 + recommendedWorkers * 15000 + (expected - existing) *
+                machineCost);
+            const profit = sellPrice * demand * 0.9 - totalCost;
+
+            document.getElementById(resultId).innerHTML = `
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.85rem;">
+                    <span>中间值1:</span><strong>${mid1.toFixed(4)}</strong>
+                    <span>中间值2:</span><strong>${mid2.toFixed(4)}</strong>
+                    <span>推荐人工数:</span><strong style="color:#1a73e8;">${recommendedWorkers} 人</strong>
+                    <span>方案花费:</span><strong style="color:#d93025;">¥${totalCost.toLocaleString('zh-CN')}</strong>
+                    <span>方案盈利:</span><strong style="color:#0d904f;">¥${profit.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong>
+                </div>
+            `;
+        }
+
+        // ==================== 启动 ====================
+        init();
+        updateAll();
+
+        console.log('✅ 市场需求竞争与跨境调动预算计算器已就绪');
+        console.log('📋 支持15种产品 × 3个市场 × 3种预算计算方式');
+        console.log('🚢 跨境调动花费含完整物流费用计算');
+        console.log('🐕🚗💺 电子狗/智能车机/安全座椅独立计算模块');
+    </script>
+</body>
+</html>
