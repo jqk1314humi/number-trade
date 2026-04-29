@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>市场需求竞争与跨境调动预算计算器</title>
+    <title>贾钦凯队专用计算器</title>
     <style>
         :root {
             --bg: #f0f4f8;
@@ -138,42 +138,6 @@
             background: #fce8e6;
             color: #d93025;
         }
-        .tabs {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-            background: #f5f6f8;
-            border-radius: 10px;
-            padding: 5px;
-        }
-        .tab-btn {
-            padding: 9px 18px;
-            border: none;
-            background: transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: var(--transition);
-            color: var(--text-secondary);
-            white-space: nowrap;
-        }
-        .tab-btn.active {
-            background: #fff;
-            color: var(--primary);
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-        }
-        .tab-btn:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.6);
-            color: var(--text);
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
         .input-group {
             display: flex;
             flex-wrap: wrap;
@@ -271,10 +235,12 @@
             padding: 18px;
             text-align: center;
             transition: var(--transition);
+            position: relative;
         }
         .budget-card.featured {
             border-color: var(--primary);
             box-shadow: 0 4px 16px rgba(26, 115, 232, 0.15);
+            background: linear-gradient(135deg, #e8f0fe 0%, #ffffff 100%);
         }
         .budget-card h3 {
             font-size: 0.9rem;
@@ -380,10 +346,63 @@
             border-top: 2px dashed #e0e4e8;
             margin: 20px 0;
         }
-        .tooltip {
-            position: relative;
-            cursor: help;
-            border-bottom: 1px dotted #888;
+
+        /* 模态弹窗 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: #fff;
+            border-radius: 16px;
+            padding: 30px 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: modalPop 0.3s ease;
+        }
+        @keyframes modalPop {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: var(--danger);
+            font-size: 1.6rem;
+        }
+        .modal-content p {
+            font-size: 1.1rem;
+            margin-bottom: 28px;
+            line-height: 1.8;
+            color: var(--text);
+        }
+        .close-btn {
+            margin: 0 auto;
+            display: inline-block;
+        }
+
+        .highlight-worker {
+            background-color: #ffd54f;
+            color: #000;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 1.1rem;
         }
     </style>
 </head>
@@ -391,11 +410,20 @@
     <header class="app-header">
         <h1>📊 市场需求竞争与跨境调动预算计算器</h1>
         <div class="header-badges" id="headerBadges">
-            <span class="badge" id="quarterBadge">📅 季度: <strong id="quarterDisplay">4</strong></span>
+            <span class="badge" id="quarterBadge">📅 年份: <strong id="yearDisplay">1</strong> 季度: <strong id="quarterDisplay">1</strong></span>
             <span class="badge" id="orderBadge">📦 订单获取中</span>
             <span class="badge warning-badge" id="alertBadge" style="display:none;">⚠️ 提醒</span>
         </div>
     </header>
+
+    <!-- 提醒弹窗 -->
+    <div class="modal-overlay" id="reminderModal" style="display: none;">
+        <div class="modal-content">
+            <h2>⚠️ 重要提醒</h2>
+            <p id="reminderMessage"></p>
+            <button class="btn btn-primary close-btn" onclick="closeModal()">我知道了</button>
+        </div>
+    </div>
 
     <div class="container">
         <!-- 顶部设置区 -->
@@ -403,8 +431,15 @@
             <div class="card-header"><span class="icon icon-blue">⚙️</span> 基本设置</div>
             <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
                 <div class="input-group">
+                    <label>年份:</label>
+                    <select id="currentYear" onchange="onYearQuarterChange()">
+                        <option value="1">第1年</option><option value="2">第2年</option>
+                        <option value="3">第3年</option><option value="4">第4年</option>
+                    </select>
+                </div>
+                <div class="input-group">
                     <label>当前季度:</label>
-                    <select id="currentQuarter" onchange="updateAll()">
+                    <select id="currentQuarter" onchange="onYearQuarterChange()">
                         <option value="1">第1季度</option><option value="2">第2季度</option>
                         <option value="3">第3季度</option><option value="4" selected>第4季度</option>
                     </select>
@@ -469,7 +504,7 @@
             </div>
         </div>
 
-        <!-- 三种预算方式结果 -->
+        <!-- 三种预算方式结果（高亮推荐方案） -->
         <div class="card">
             <div class="card-header"><span class="icon icon-green">💰</span> 三种预算计算方式对比</div>
             <div class="budget-summary" id="budgetSummary"></div>
@@ -493,7 +528,7 @@
                 </table>
             </div>
             <div style="margin-top:12px;padding:12px;background:#f8fafd;border-radius:8px;">
-                <strong>📋 预算差值分析（相对于预期预算 <span id="expectedBudgetDisplay">8,000,000</span> 元）：</strong>
+                <strong>📋 预算差值分析（相对于预期预算 <span id="expectedBudgetDisplay">8,000,000</span> 元）</strong>
                 <div id="budgetDiffAnalysis" style="margin-top:8px;"></div>
             </div>
         </div>
@@ -535,7 +570,7 @@
                 <div class="card-header"><span class="icon icon-red">🐕</span> 电子狗计算</div>
                 <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
                     <label>已有机器:</label><input type="number" id="dogExisting" value="1" min="0" onchange="updateSpecialCalc()" class="small-input">
-                    <label>需求量:</label><input type="number" id="dogDemand" value="140" min="0" onchange="updateSpecialCalc()" class="small-input">
+                    <label>需求量:</label><input type="number" id="dogDemand" value="0" min="0" onchange="updateSpecialCalc()" class="small-input">
                     <label>预期机器:</label><input type="number" id="dogExpected" value="1" min="0" onchange="updateSpecialCalc()" class="small-input">
                 </div>
                 <div style="margin-top:8px;font-size:0.9rem;" id="dogResult"></div>
@@ -544,7 +579,7 @@
                 <div class="card-header"><span class="icon icon-red">🚗</span> 智能车机计算</div>
                 <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
                     <label>已有机器:</label><input type="number" id="carExisting" value="0" min="0" onchange="updateSpecialCalc()" class="small-input">
-                    <label>需求量:</label><input type="number" id="carDemand" value="155" min="0" onchange="updateSpecialCalc()" class="small-input">
+                    <label>需求量:</label><input type="number" id="carDemand" value="0" min="0" onchange="updateSpecialCalc()" class="small-input">
                     <label>预期机器:</label><input type="number" id="carExpected" value="1" min="0" onchange="updateSpecialCalc()" class="small-input">
                 </div>
                 <div style="margin-top:8px;font-size:0.9rem;" id="carResult"></div>
@@ -553,7 +588,7 @@
                 <div class="card-header"><span class="icon icon-red">💺</span> 安全座椅计算</div>
                 <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
                     <label>已有机器:</label><input type="number" id="seatExisting" value="0" min="0" onchange="updateSpecialCalc()" class="small-input">
-                    <label>需求量:</label><input type="number" id="seatDemand" value="140" min="0" onchange="updateSpecialCalc()" class="small-input">
+                    <label>需求量:</label><input type="number" id="seatDemand" value="0" min="0" onchange="updateSpecialCalc()" class="small-input">
                     <label>预期机器:</label><input type="number" id="seatExpected" value="1" min="0" onchange="updateSpecialCalc()" class="small-input">
                 </div>
                 <div style="margin-top:8px;font-size:0.9rem;" id="seatResult"></div>
@@ -581,32 +616,86 @@
             { name: '尼康', unitPrice: 6199, volCoef: 1260, weightCoef: 2, isSpecial: true },
         ];
 
-        // 默认市场数据 [淘货总需求, 全球总需求, 音符总需求, 倍率]
-        const defaultMarketData = [
-            { taohuo: 0, global: 0, yinfu: 0, rate: 1 },
-            { taohuo: 0, global: 0, yinfu: 0, rate: 1 },
-            { taohuo: 0, global: 0, yinfu: 0, rate: 1 },
-            { taohuo: 0, global: 0, yinfu: 0, rate: 1 },
-            { taohuo: 0, global: 0, yinfu: 0, rate: 1 },
-            { taohuo: 0, global: 0, yinfu: 0, rate: 1 },
-            { taohuo: 0, global: 0, yinfu: 0, rate: 1 },
-            { taohuo: 0, global: 0, yinfu: 0, rate: 1 },
-            { taohuo: 0, global: 0, yinfu: 0, rate: 1 },
-            { taohuo: 0, global: 0, yinfu: 0, rate: 1 },
-            { taohuo: 0, global: 0, yinfu: 0, rate: 1 },
-            { taohuo: 0, global: 0, yinfu: 0, rate: 1 },
-            { taohuo: 0, global: 0, yinfu: 0, rate: 1 },
-            { taohuo: 0, global: 0, yinfu: 0, rate: 1 },
-            { taohuo: 0, global: 0, yinfu: 0, rate: 1 },
-        ];
+        // 默认市场数据：全部总需求为0，倍率为1
+        const defaultMarketData = products.map(() => ({
+            taohuo: 0,
+            global: 0,
+            yinfu: 0,
+            rate: 1
+        }));
 
-        // 当前市场数据（可被用户修改）
         let marketData = JSON.parse(JSON.stringify(defaultMarketData));
+
+        // 推荐方案映射 (年份,季度) -> 方案编号(1,2,3)
+        const recommendMap = {
+            '1,1': 1,
+            '1,2': 3,
+            '1,3': 2,
+            '1,4': 3,
+            '2,1': 2,
+            '2,2': 3,
+            '2,3': 2,
+            '2,4': 3,
+            '3,1': 2,
+            '3,2': 3,
+            '3,3': 2,
+            '3,4': 3,
+            '4,1': 2,
+            '4,2': 3,
+            '4,3': 2,
+            '4,4': 3
+        };
+
+        // 提醒弹窗映射 (仅当切换到这些年份季度时弹出)
+        const reminderMessages = {
+            '1,4': '📢 请注意：第1年第4季度，需要入驻京西平台！',
+            '2,2': '📢 请注意：第2年第2季度，需要续费淘货服务！',
+            '2,4': '📢 请注意：第2年第4季度，需要续费京西平台！',
+            '3,1': '📢 请注意：第3年第1季度，需要入驻音符直播！',
+            '3,2': '📢 请注意：第3年第2季度，需要续费淘货服务！',
+            '3,4': '📢 请注意：第3年第4季度，需要续费京西平台！',
+            '4,2': '📢 请注意：第4年第2季度，需要续费淘货服务！',
+            '4,4': '📢 请注意：第4年第4季度，需要续费京西平台！',
+        };
+
+        // 记录上次弹出的提醒key，避免重复弹窗
+        let lastReminderKey = null;
+
+        function getRecommendMethod() {
+            const year = document.getElementById('currentYear').value;
+            const quarter = document.getElementById('currentQuarter').value;
+            return recommendMap[`${year},${quarter}`] || 3;
+        }
+
+        // 仅在年份或季度变化时调用
+        function triggerReminder() {
+            const year = document.getElementById('currentYear').value;
+            const quarter = document.getElementById('currentQuarter').value;
+            const key = `${year},${quarter}`;
+            const msg = reminderMessages[key];
+            if (msg && key !== lastReminderKey) {
+                document.getElementById('reminderMessage').innerHTML = msg;
+                document.getElementById('reminderModal').style.display = 'flex';
+                lastReminderKey = key;
+            }
+        }
+
+        // 年份季度下拉框的onchange处理
+        function onYearQuarterChange() {
+            triggerReminder();  // 先检查提醒
+            updateAll();        // 再更新所有计算
+        }
+
+        function closeModal() {
+            document.getElementById('reminderModal').style.display = 'none';
+        }
 
         // ==================== 初始化 ====================
         function init() {
             buildMarketTable();
             updateAll();
+            // 页面加载时，如果当前年份季度正好有提醒，也弹出一次（相当于“第一次切换到”）
+            triggerReminder();
         }
 
         function buildMarketTable() {
@@ -659,7 +748,6 @@
             updateAll();
         }
 
-        // ==================== 核心计算 ====================
         function getPeople() {
             return {
                 taohuo: parseInt(document.getElementById('taohuoPeople').value) || 12,
@@ -677,23 +765,23 @@
 
         function updateAll() {
             const people = getPeople();
+            const year = parseInt(document.getElementById('currentYear').value);
             const quarter = parseInt(document.getElementById('currentQuarter').value);
             const isOrderActive = parseInt(document.getElementById('isOrderActive').value);
             const expectedBudget = parseFloat(document.getElementById('expectedBudget').value) || 8000000;
 
-            // 更新显示
+            document.getElementById('yearDisplay').textContent = year;
             document.getElementById('quarterDisplay').textContent = quarter;
-            document.getElementById('expectedBudgetDisplay').textContent = expectedBudget.toLocaleString(
-            'zh-CN');
+            document.getElementById('expectedBudgetDisplay').textContent = expectedBudget.toLocaleString('zh-CN');
 
-            // 提醒信息
+            // 提醒信息（订单获取中 + 固定文字）
             const alertMsgs = [];
             const alertBadge = document.getElementById('alertBadge');
             if (isOrderActive === 1) {
                 alertMsgs.push({ msg: '⚠️ 注意提醒跨境调仓！！！！！', type: 'alert-danger' });
             }
             if (quarter === 4) {
-                alertMsgs.push({ msg: '⚠️ 注意提醒入驻京西！', type: 'alert-warning' });
+                alertMsgs.push({ msg: '⚠️ 注意提醒入驻京西', type: 'alert-warning' });
             }
             document.getElementById('alertMessages').innerHTML = alertMsgs.map(a =>
                 `<div class="alert ${a.type}">${a.msg}</div>`
@@ -703,12 +791,11 @@
                 alertBadge.textContent = alertMsgs.map(a => a.msg.replace('⚠️ ', '')).join(' | ');
             }
 
-            // 更新订单获取中badge
             const orderBadge = document.getElementById('orderBadge');
             orderBadge.textContent = isOrderActive === 1 ? '📦 订单获取中' : '📦 订单未获取';
             orderBadge.style.background = isOrderActive === 1 ? 'rgba(211,47,47,0.25)' : 'rgba(255,255,255,0.15)';
 
-            // 计算各产品的需求期望
+            // 需求期望计算
             const demandExps = products.map((p, i) => ({
                 taohuo: calcDemandExpectation(marketData[i].taohuo, people.taohuo, p.isSpecial),
                 global: calcDemandExpectation(marketData[i].global, people.global, p.isSpecial),
@@ -719,7 +806,7 @@
                 isSpecial: p.isSpecial,
             }));
 
-            // 更新市场表格
+            // 更新市场表格期望值
             demandExps.forEach((d, i) => {
                 const te = document.getElementById('taohuoExp_' + i);
                 const ge = document.getElementById('globalExp_' + i);
@@ -729,50 +816,47 @@
                 if (ye) ye.textContent = d.yinfu;
             });
 
-            // 三种预算方式的总需求
-            // 方式1: (淘货需求期望 + 全球需求期望) * 2
-            // 方式2: 淘货需求期望 + 2*全球需求期望 + 音符需求期望
-            // 方式3: 淘货需求期望 + 音符需求期望
-            const methodNames = ['2淘货2全球', '1淘货2全球+音符', '1淘货+1音符'];
+            // 三种方式总需求
             const totalDemands = demandExps.map(d => ({
                 m1: (d.taohuo + d.global) * 2,
                 m2: d.taohuo + 2 * d.global + d.yinfu,
                 m3: d.taohuo + d.yinfu,
             }));
 
-            // 实时选品量 = 总需求 * 倍率
             const selectQtys = totalDemands.map((td, i) => ({
                 m1: Math.round(td.m1 * demandExps[i].rate),
                 m2: Math.round(td.m2 * demandExps[i].rate),
                 m3: Math.round(td.m3 * demandExps[i].rate),
             }));
 
-            // 进货预算 = 实时选品量 * 单价
             const budgets = selectQtys.map((sq, i) => ({
                 m1: sq.m1 * demandExps[i].unitPrice,
                 m2: sq.m2 * demandExps[i].unitPrice,
                 m3: sq.m3 * demandExps[i].unitPrice,
             }));
 
-            // 总预算
-            const totalBudget1 = budgets.reduce((sum, b) => sum + b.m1, 0);
-            const totalBudget2 = budgets.reduce((sum, b) => sum + b.m2, 0);
-            const totalBudget3 = budgets.reduce((sum, b) => sum + b.m3, 0);
+            const totalBudget1 = budgets.reduce((s, b) => s + b.m1, 0);
+            const totalBudget2 = budgets.reduce((s, b) => s + b.m2, 0);
+            const totalBudget3 = budgets.reduce((s, b) => s + b.m3, 0);
 
-            // 显示预算总结
-            document.getElementById('budgetSummary').innerHTML = `
-                <div class="budget-card">
-                    <h3>📊 方式1: 2淘货2全球</h3>
+            // 当前推荐方案
+            const recommendMethod = getRecommendMethod();
+
+            // 预算卡片高亮
+            const summaryDiv = document.getElementById('budgetSummary');
+            summaryDiv.innerHTML = `
+                <div class="budget-card ${recommendMethod === 1 ? 'featured' : ''}" id="card1">
+                    <h3> 方式1: 2淘货2全球</h3>
                     <div class="amount">¥${totalBudget1.toLocaleString('zh-CN', {minimumFractionDigits:2,maximumFractionDigits:2})}</div>
                     <div class="subtitle">总需求 = (淘货期望 + 全球期望) × 2</div>
                 </div>
-                <div class="budget-card featured">
-                    <h3>⭐ 方式2: 1淘货2全球+音符</h3>
+                <div class="budget-card ${recommendMethod === 2 ? 'featured' : ''}" id="card2">
+                    <h3>方式2: 1淘货2全球+音符</h3>
                     <div class="amount">¥${totalBudget2.toLocaleString('zh-CN', {minimumFractionDigits:2,maximumFractionDigits:2})}</div>
                     <div class="subtitle">总需求 = 淘货期望 + 2×全球期望 + 音符期望</div>
                 </div>
-                <div class="budget-card">
-                    <h3>📊 方式3: 1淘货+1音符</h3>
+                <div class="budget-card ${recommendMethod === 3 ? 'featured' : ''}" id="card3">
+                    <h3> 方式3: 1淘货+1音符</h3>
                     <div class="amount">¥${totalBudget3.toLocaleString('zh-CN', {minimumFractionDigits:2,maximumFractionDigits:2})}</div>
                     <div class="subtitle">总需求 = 淘货期望 + 音符期望</div>
                 </div>
@@ -804,109 +888,75 @@
                 </tr>
             `;
 
-            // 预算差值分析
-            // 第1季度使用方式2(C列)，第2-4季度使用方式3(D列)
-            let diffQuarter1, diffQuarter2, diffQuarter3, diffQuarter4;
-            diffQuarter1 = Math.abs(totalBudget2 - expectedBudget);
-            diffQuarter2 = Math.abs(totalBudget3 - expectedBudget);
-            diffQuarter3 = Math.abs(totalBudget3 - expectedBudget);
-            diffQuarter4 = Math.abs(totalBudget3 - expectedBudget);
-
+            // 差值分析
             const diffDiv = document.getElementById('budgetDiffAnalysis');
+            let diffRows = '';
+            for (let q = 1; q <= 4; q++) {
+                const method = recommendMap[`${year},${q}`] || 3;
+                let budgetVal;
+                if (method === 1) budgetVal = totalBudget1;
+                else if (method === 2) budgetVal = totalBudget2;
+                else budgetVal = totalBudget3;
+                const diff = Math.abs(budgetVal - expectedBudget);
+                const status = diff < expectedBudget * 0.05 ? '✅ 接近' : diff < expectedBudget * 0.15 ? '⚠️ 有偏差' :
+                    '🔴 偏差较大';
+                diffRows += `
+                <tr>
+                    <td>第${q}季度</td>
+                    <td>方案${method}</td>
+                    <td class="result-cell">¥${budgetVal.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                    <td>¥${diff.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+                    <td>${status}</td>
+                </tr>`;
+            }
             diffDiv.innerHTML = `
                 <table style="width:100%;font-size:0.85rem;">
-                    <tr>
-                        <th>季度</th><th>推荐策略</th><th>预算金额</th><th>与预期预算差值</th><th>状态</th>
-                    </tr>
-                    <tr>
-                        <td>第1季度</td><td>方式2 (1淘货2全球+音符)</td>
-                        <td class="result-cell">¥${totalBudget2.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-                        <td>¥${diffQuarter1.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-                        <td>${diffQuarter1 < expectedBudget*0.05 ? '✅ 接近' : diffQuarter1 < expectedBudget*0.15 ? '⚠️ 有偏差' : '🔴 偏差较大'}</td>
-                    </tr>
-                    <tr>
-                        <td>第2季度</td><td>方式3 (1淘货+1音符)</td>
-                        <td class="result-cell">¥${totalBudget3.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-                        <td>¥${diffQuarter2.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-                        <td>${diffQuarter2 < expectedBudget*0.05 ? '✅ 接近' : diffQuarter2 < expectedBudget*0.15 ? '⚠️ 有偏差' : '🔴 偏差较大'}</td>
-                    </tr>
-                    <tr>
-                        <td>第3季度</td><td>方式3 (1淘货+1音符)</td>
-                        <td class="result-cell">¥${totalBudget3.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-                        <td>¥${diffQuarter3.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-                        <td>${diffQuarter3 < expectedBudget*0.05 ? '✅ 接近' : diffQuarter3 < expectedBudget*0.15 ? '⚠️ 有偏差' : '🔴 偏差较大'}</td>
-                    </tr>
-                    <tr>
-                        <td>第4季度</td><td>方式3 (1淘货+1音符)</td>
-                        <td class="result-cell">¥${totalBudget3.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-                        <td>¥${diffQuarter4.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-                        <td>${diffQuarter4 < expectedBudget*0.05 ? '✅ 接近' : diffQuarter4 < expectedBudget*0.15 ? '⚠️ 有偏差' : '🔴 偏差较大'}</td>
-                    </tr>
+                    <tr><th>季度</th><th>推荐方案</th><th>预算金额</th><th>与预期差值</th><th>状态</th></tr>
+                    ${diffRows}
                 </table>
             `;
 
-            // 存储计算结果供跨境调动使用
+            // 存储计算结果
             window._cachedSelectQtys = selectQtys;
             window._cachedDemandExps = demandExps;
-
-            // 更新跨境调动
             updateCrossBorder();
             updateSpecialCalc();
+            // 注意：不再在这里调用triggerReminder()，以免重复弹窗
         }
 
-        // ==================== 跨境调动花费 ====================
         function updateCrossBorder() {
             const selectQtys = window._cachedSelectQtys;
             const demandExps = window._cachedDemandExps;
             if (!selectQtys || !demandExps) return;
-
             const mode = parseInt(document.getElementById('crossBorderBudgetMode').value);
             const exchangeRate = parseFloat(document.getElementById('exchangeRate').value) || 7.18;
             const tariffRate = parseFloat(document.getElementById('tariffRate').value) || 0.0563;
 
-            // 获取各产品的个数：前3个(座椅、车、狗)可能为0或手动设置，其余使用实时选品量
             const quantities = products.map((p, i) => {
                 if (i < 3) {
-                    // 座椅、车、狗：尝试从输入获取，否则使用实时选品量
                     const inputEl = document.getElementById('cb_qty_' + i);
-                    if (inputEl && inputEl.value !== '') {
-                        return parseFloat(inputEl.value) || 0;
-                    }
-                    // 默认使用对应方式的实时选品量
-                    return mode === 0 ? selectQtys[i].m1 : mode === 1 ? selectQtys[i].m2 : selectQtys[i]
-                        .m3;
+                    if (inputEl && inputEl.value !== '') return parseFloat(inputEl.value) || 0;
                 }
                 return mode === 0 ? selectQtys[i].m1 : mode === 1 ? selectQtys[i].m2 : selectQtys[i].m3;
             });
 
             const volumes = products.map((p, i) => p.volCoef * quantities[i]);
-            const volFreights = products.map((p, i) => volumes[i] * 0.004);
+            const volFreights = volumes.map(v => v * 0.004);
             const weightFreights = products.map((p, i) => p.weightCoef * quantities[i] * 4);
             const actualFreights = products.map((p, i) => Math.max(volFreights[i], weightFreights[i]));
             const rawMaterialCosts = products.map((p, i) => quantities[i] * p.unitPrice);
             const insuranceCosts = products.map((p, i) => (rawMaterialCosts[i] + actualFreights[i]) * 1.1 * 0.012);
-
-            // 装箱费
             const totalVolume = volumes.reduce((s, v) => s + v, 0);
             const packingFee = Math.ceil(totalVolume / 54000000) * 100;
-
-            // 总费用
-            const sumH = insuranceCosts.reduce((s, v) => s + v, 0);
             const sumF = actualFreights.reduce((s, v) => s + v, 0);
             const sumG = rawMaterialCosts.reduce((s, v) => s + v, 0);
+            const sumH = insuranceCosts.reduce((s, v) => s + v, 0);
             const totalCostCNY = Math.floor((sumH + packingFee + sumF + sumG + 450) * 100) / 100;
             const totalCostUSD = totalCostCNY / exchangeRate * (1 + tariffRate);
 
-            document.getElementById('totalCostCNY').textContent = '¥' + totalCostCNY.toLocaleString('zh-CN', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
-            document.getElementById('totalCostUSD').textContent = '$' + totalCostUSD.toLocaleString('zh-CN', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            });
+            document.getElementById('totalCostCNY').textContent = '¥' + totalCostCNY.toLocaleString('zh-CN', {minimumFractionDigits:2,maximumFractionDigits:2});
+            document.getElementById('totalCostUSD').textContent = '$' + totalCostUSD.toLocaleString('zh-CN', {minimumFractionDigits:2,maximumFractionDigits:2});
 
-            // 更新跨境调动表格
             const cbBody = document.getElementById('crossBorderBody');
             cbBody.innerHTML = products.map((p, i) => `
                 <tr>
@@ -933,54 +983,35 @@
             `;
         }
 
-        // ==================== 特殊产品计算 ====================
         function updateSpecialCalc() {
-            // 电子狗
-            const dogExisting = parseInt(document.getElementById('dogExisting').value) || 1;
-            const dogDemand = parseInt(document.getElementById('dogDemand').value) || 140;
-            const dogExpected = parseInt(document.getElementById('dogExpected').value) || 1;
-            calcSpecial('dog', dogExisting, dogDemand, dogExpected, 1.35, 1.5, 440, 1100, 135000, 'dogResult');
-
-            // 智能车机
-            const carExisting = parseInt(document.getElementById('carExisting').value) || 0;
-            const carDemand = parseInt(document.getElementById('carDemand').value) || 155;
-            const carExpected = parseInt(document.getElementById('carExpected').value) || 1;
-            calcSpecial('car', carExisting, carDemand, carExpected, 1.52, 0.5 / 0.3, 500, 1250, 152000, 'carResult');
-
-            // 安全座椅
-            const seatExisting = parseInt(document.getElementById('seatExisting').value) || 0;
-            const seatDemand = parseInt(document.getElementById('seatDemand').value) || 140;
-            const seatExpected = parseInt(document.getElementById('seatExpected').value) || 1;
-            calcSpecial('seat', seatExisting, seatDemand, seatExpected, 1.68, 0.7 / 0.5, 750, 1875, 168000, 'seatResult');
+            calcSpecial('dog', 'dogExisting', 'dogDemand', 'dogExpected', 1.35, 1.5, 440, 1100, 135000, 'dogResult');
+            calcSpecial('car', 'carExisting', 'carDemand', 'carExpected', 1.52, 0.5/0.3, 500, 1250, 152000, 'carResult');
+            calcSpecial('seat', 'seatExisting', 'seatDemand', 'seatExpected', 1.68, 0.7/0.5, 750, 1875, 168000, 'seatResult');
         }
 
-        function calcSpecial(type, existing, demand, expected, coefA, coefB, unitCost, sellPrice, machineCost, resultId) {
+        function calcSpecial(type, existingId, demandId, expectedId, coefA, coefB, unitCost, sellPrice, machineCost, resultId) {
+            const existing = parseInt(document.getElementById(existingId).value) || 0;
+            const demand = parseInt(document.getElementById(demandId).value) || 0;
+            const expected = parseInt(document.getElementById(expectedId).value) || 0;
             const mid1 = Math.pow(coefA * expected, 0.7);
             const mid2 = demand / (coefB * 63 * 0.9 * mid1);
             const recommendedWorkers = Math.round(Math.pow(mid2, 10 / 3));
-            const totalCost = Math.ceil(unitCost * demand / 0.9 + recommendedWorkers * 15000 + (expected - existing) *
-                machineCost);
+            const totalCost = Math.ceil(unitCost * demand / 0.9 + recommendedWorkers * 15000 + (expected - existing) * machineCost);
             const profit = sellPrice * demand * 0.9 - totalCost;
-
             document.getElementById(resultId).innerHTML = `
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:0.85rem;">
                     <span>中间值1:</span><strong>${mid1.toFixed(4)}</strong>
                     <span>中间值2:</span><strong>${mid2.toFixed(4)}</strong>
-                    <span>推荐人工数:</span><strong style="color:#1a73e8;">${recommendedWorkers} 人</strong>
+                    <span>推荐人工数:</span><strong class="highlight-worker">${recommendedWorkers} 人</strong>
                     <span>方案花费:</span><strong style="color:#d93025;">¥${totalCost.toLocaleString('zh-CN')}</strong>
                     <span>方案盈利:</span><strong style="color:#0d904f;">¥${profit.toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong>
                 </div>
             `;
         }
 
-        // ==================== 启动 ====================
+        // 启动
         init();
-        updateAll();
-
-        console.log('✅ 市场需求竞争与跨境调动预算计算器已就绪');
-        console.log('📋 支持15种产品 × 3个市场 × 3种预算计算方式');
-        console.log('🚢 跨境调动花费含完整物流费用计算');
-        console.log('🐕🚗💺 电子狗/智能车机/安全座椅独立计算模块');
+        console.log('');
     </script>
 </body>
 </html>
