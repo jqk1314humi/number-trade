@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>贾钦凯队伍专用贸易计算器</title>
     <style>
+        /* 样式保持不变，此处省略以节省篇幅，实际使用时请保留完整样式 */
         :root {
             --bg: #f0f4f8;
             --card-bg: #ffffff;
@@ -22,388 +23,54 @@
             --radius-sm: 8px;
             --transition: 0.2s ease;
         }
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-        .app-header {
-            background: linear-gradient(135deg, #1a3a5c 0%, #1a5276 40%, #1a73e8 100%);
-            color: #fff;
-            padding: 18px 28px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 14px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .app-header h1 {
-            font-size: 1.4rem;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-        }
-        .header-badges {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            background: rgba(255, 255, 255, 0.18);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        .badge.warning-badge {
-            background: #f29900;
-            border-color: #f29900;
-            color: #000;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(242, 153, 0, 0.5);
-            }
-            50% {
-                box-shadow: 0 0 0 14px rgba(242, 153, 0, 0);
-            }
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-            display: grid;
-            gap: 20px;
-        }
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 22px 24px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            transition: var(--transition);
-        }
-        .card:hover {
-            box-shadow: var(--shadow-lg);
-        }
-        .card-header {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .card-header .icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
-        }
-        .icon-blue {
-            background: #e8f0fe;
-            color: #1a73e8;
-        }
-        .icon-green {
-            background: #e6f4ea;
-            color: #0d904f;
-        }
-        .icon-orange {
-            background: #fef7e0;
-            color: #f29900;
-        }
-        .icon-red {
-            background: #fce8e6;
-            color: #d93025;
-        }
-        .input-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .input-group label {
-            font-weight: 600;
-            font-size: 0.9rem;
-            min-width: 70px;
-            color: var(--text-secondary);
-        }
-        .input-group input,
-        .input-group select {
-            padding: 9px 14px;
-            border: 2px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-size: 0.9rem;
-            width: 120px;
-            transition: var(--transition);
-            background: #fafbfc;
-        }
-        .input-group input:focus,
-        .input-group select:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12);
-            background: #fff;
-        }
-        .input-group input.small-input {
-            width: 80px;
-        }
-        .input-group input.wide-input {
-            width: 150px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
-            margin: 8px 0;
-        }
-        table th,
-        table td {
-            padding: 8px 10px;
-            text-align: center;
-            border: 1px solid #e8eaed;
-            white-space: nowrap;
-        }
-        table th {
-            background: #f5f6f8;
-            font-weight: 700;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            position: sticky;
-            top: 0;
-        }
-        table tbody tr:hover {
-            background: #fafcfd;
-        }
-        table input {
-            width: 80px;
-            padding: 6px 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            text-align: center;
-            font-size: 0.85rem;
-            transition: var(--transition);
-        }
-        table input:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
-        }
-        .result-cell {
-            font-weight: 700;
-            color: var(--primary);
-            background: #f8fafd;
-        }
-        .result-highlight {
-            background: #fffde7;
-            font-weight: 700;
-            color: #e65100;
-        }
-        .budget-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
-            margin: 16px 0;
-        }
-        .budget-card {
-            background: linear-gradient(135deg, #f8fafd 0%, #fff 100%);
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            padding: 18px;
-            text-align: center;
-            transition: var(--transition);
-            position: relative;
-        }
-        .budget-card.featured {
-            border-color: var(--primary);
-            box-shadow: 0 4px 16px rgba(26, 115, 232, 0.15);
-            background: linear-gradient(135deg, #e8f0fe 0%, #ffffff 100%);
-        }
-        .budget-card h3 {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-        }
-        .budget-card .amount {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #1a3a5c;
-        }
-        .budget-card.featured .amount {
-            color: var(--primary);
-        }
-        .budget-card .subtitle {
-            font-size: 0.75rem;
-            color: #888;
-            margin-top: 4px;
-        }
-        .alert {
-            padding: 12px 18px;
-            border-radius: var(--radius-sm);
-            margin: 10px 0;
-            font-weight: 600;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .alert-warning {
-            background: #fef7e0;
-            border: 1px solid #f9ab00;
-            color: #8a5d00;
-        }
-        .alert-info {
-            background: #e8f0fe;
-            border: 1px solid #4285f4;
-            color: #1a3a5c;
-        }
-        .alert-danger {
-            background: #fce8e6;
-            border: 1px solid #d93025;
-            color: #a50e0e;
-        }
-        .btn {
-            padding: 10px 22px;
-            border: none;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 0.9rem;
-            transition: var(--transition);
-            letter-spacing: 0.3px;
-        }
-        .btn-primary {
-            background: var(--primary);
-            color: #fff;
-        }
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
-        }
-        .btn-outline {
-            background: #fff;
-            border: 2px solid var(--primary);
-            color: var(--primary);
-        }
-        .btn-outline:hover {
-            background: #e8f0fe;
-        }
-        .grid-2col {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        @media (max-width: 900px) {
-            .grid-2col {
-                grid-template-columns: 1fr;
-            }
-            .budget-summary {
-                grid-template-columns: 1fr;
-            }
-            table {
-                font-size: 0.7rem;
-            }
-            table th,
-            table td {
-                padding: 4px 5px;
-            }
-            .app-header h1 {
-                font-size: 1.1rem;
-            }
-        }
-        .scrollable-table {
-            overflow-x: auto;
-            max-height: 500px;
-            overflow-y: auto;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-        }
-        .section-divider {
-            border: none;
-            border-top: 2px dashed #e0e4e8;
-            margin: 20px 0;
-        }
-
-        /* 模态弹窗 */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .modal-content {
-            background: #fff;
-            border-radius: 16px;
-            padding: 30px 40px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            text-align: center;
-            animation: modalPop 0.3s ease;
-        }
-        @keyframes modalPop {
-            from {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-        .modal-content h2 {
-            margin-bottom: 20px;
-            color: var(--danger);
-            font-size: 1.6rem;
-        }
-        .modal-content p {
-            font-size: 1.1rem;
-            margin-bottom: 28px;
-            line-height: 1.8;
-            color: var(--text);
-        }
-        .close-btn {
-            margin: 0 auto;
-            display: inline-block;
-        }
-
-        .highlight-worker {
-            background-color: #ffd54f;
-            color: #000;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 1.1rem;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+        .app-header { background: linear-gradient(135deg, #1a3a5c 0%, #1a5276 40%, #1a73e8 100%); color: #fff; padding: 18px 28px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); position: sticky; top: 0; z-index: 100; }
+        .app-header h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: 0.3px; }
+        .header-badges { display: flex; gap: 10px; flex-wrap: wrap; }
+        .badge { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; background: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .badge.warning-badge { background: #f29900; border-color: #f29900; color: #000; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(242, 153, 0, 0.5); } 50% { box-shadow: 0 0 0 14px rgba(242, 153, 0, 0); } }
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; display: grid; gap: 20px; }
+        .card { background: var(--card-bg); border-radius: var(--radius); padding: 22px 24px; box-shadow: var(--shadow); border: 1px solid var(--border); transition: var(--transition); }
+        .card:hover { box-shadow: var(--shadow-lg); }
+        .card-header { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid var(--border); display: flex; align-items: center; gap: 10px; }
+        .card-header .icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+        .icon-blue { background: #e8f0fe; color: #1a73e8; } .icon-green { background: #e6f4ea; color: #0d904f; } .icon-orange { background: #fef7e0; color: #f29900; } .icon-red { background: #fce8e6; color: #d93025; }
+        .input-group { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 10px; }
+        .input-group label { font-weight: 600; font-size: 0.9rem; min-width: 70px; color: var(--text-secondary); }
+        .input-group input, .input-group select { padding: 9px 14px; border: 2px solid var(--border); border-radius: var(--radius-sm); font-size: 0.9rem; width: 120px; transition: var(--transition); background: #fafbfc; }
+        .input-group input:focus, .input-group select:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12); background: #fff; }
+        .input-group input.small-input { width: 80px; } .input-group input.wide-input { width: 150px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 8px 0; }
+        table th, table td { padding: 8px 10px; text-align: center; border: 1px solid #e8eaed; white-space: nowrap; }
+        table th { background: #f5f6f8; font-weight: 700; font-size: 0.8rem; color: var(--text-secondary); position: sticky; top: 0; }
+        table tbody tr:hover { background: #fafcfd; }
+        table input { width: 80px; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; text-align: center; font-size: 0.85rem; transition: var(--transition); }
+        table input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1); }
+        .result-cell { font-weight: 700; color: var(--primary); background: #f8fafd; } .result-highlight { background: #fffde7; font-weight: 700; color: #e65100; }
+        .budget-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 16px 0; }
+        .budget-card { background: linear-gradient(135deg, #f8fafd 0%, #fff 100%); border: 2px solid var(--border); border-radius: var(--radius); padding: 18px; text-align: center; transition: var(--transition); position: relative; }
+        .budget-card.featured { border-color: var(--primary); box-shadow: 0 4px 16px rgba(26, 115, 232, 0.15); background: linear-gradient(135deg, #e8f0fe 0%, #ffffff 100%); }
+        .budget-card h3 { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 6px; }
+        .budget-card .amount { font-size: 1.8rem; font-weight: 800; color: #1a3a5c; } .budget-card.featured .amount { color: var(--primary); }
+        .budget-card .subtitle { font-size: 0.75rem; color: #888; margin-top: 4px; }
+        .alert { padding: 12px 18px; border-radius: var(--radius-sm); margin: 10px 0; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+        .alert-warning { background: #fef7e0; border: 1px solid #f9ab00; color: #8a5d00; } .alert-info { background: #e8f0fe; border: 1px solid #4285f4; color: #1a3a5c; } .alert-danger { background: #fce8e6; border: 1px solid #d93025; color: #a50e0e; }
+        .btn { padding: 10px 22px; border: none; border-radius: var(--radius-sm); cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: var(--transition); letter-spacing: 0.3px; }
+        .btn-primary { background: var(--primary); color: #fff; } .btn-primary:hover { background: var(--primary-dark); box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3); }
+        .btn-outline { background: #fff; border: 2px solid var(--primary); color: var(--primary); } .btn-outline:hover { background: #e8f0fe; }
+        .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 900px) { .grid-2col { grid-template-columns: 1fr; } .budget-summary { grid-template-columns: 1fr; } table { font-size: 0.7rem; } table th, table td { padding: 4px 5px; } .app-header h1 { font-size: 1.1rem; } }
+        .scrollable-table { overflow-x: auto; max-height: 500px; overflow-y: auto; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+        .section-divider { border: none; border-top: 2px dashed #e0e4e8; margin: 20px 0; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 999; display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: #fff; border-radius: 16px; padding: 30px 40px; max-width: 500px; width: 90%; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3); text-align: center; animation: modalPop 0.3s ease; }
+        @keyframes modalPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-content h2 { margin-bottom: 20px; color: var(--danger); font-size: 1.6rem; }
+        .modal-content p { font-size: 1.1rem; margin-bottom: 28px; line-height: 1.8; color: var(--text); }
+        .close-btn { margin: 0 auto; display: inline-block; }
+        .highlight-worker { background-color: #ffd54f; color: #000; font-weight: 800; padding: 2px 8px; border-radius: 4px; font-size: 1.1rem; }
     </style>
 </head>
 <body>
@@ -432,7 +99,8 @@
             <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
                 <div class="input-group">
                     <label>年份:</label>
-                    <select id="currentYear" onchange="onYearQuarterChange()">
+                    <!-- 修改：年份切换时调用 onYearChange() -->
+                    <select id="currentYear" onchange="onYearChange()">
                         <option value="1">第1年</option><option value="2">第2年</option>
                         <option value="3">第3年</option><option value="4">第4年</option>
                     </select>
@@ -646,7 +314,7 @@
             '4,4': 3
         };
 
-        // 提醒弹窗映射 (仅当切换到这些年份季度时弹出)
+        // 提醒弹窗映射
         const reminderMessages = {
             '1,4': '📢 请注意：第1年第4季度，需要入驻京西平台！',
             '2,2': '📢 请注意：第2年第2季度，需要续费淘货服务！',
@@ -658,7 +326,6 @@
             '4,4': '📢 请注意：第4年第4季度，需要续费京西平台！',
         };
 
-        // 记录上次弹出的提醒key，避免重复弹窗
         let lastReminderKey = null;
 
         function getRecommendMethod() {
@@ -667,7 +334,7 @@
             return recommendMap[`${year},${quarter}`] || 3;
         }
 
-        // 仅在年份或季度变化时调用
+        // 触发提醒（仅在年份或季度变化时调用）
         function triggerReminder() {
             const year = document.getElementById('currentYear').value;
             const quarter = document.getElementById('currentQuarter').value;
@@ -680,10 +347,17 @@
             }
         }
 
-        // 年份季度下拉框的onchange处理
+        // 【新增】年份切换时：自动将季度设为1，然后触发更新和提醒
+        function onYearChange() {
+            document.getElementById('currentQuarter').value = '1';
+            // 季度重置为1后，手动触发季度变化逻辑
+            onYearQuarterChange();
+        }
+
+        // 季度切换时的处理（包括手动切换季度）
         function onYearQuarterChange() {
-            triggerReminder();  // 先检查提醒
-            updateAll();        // 再更新所有计算
+            triggerReminder();
+            updateAll();
         }
 
         function closeModal() {
@@ -694,8 +368,7 @@
         function init() {
             buildMarketTable();
             updateAll();
-            // 页面加载时，如果当前年份季度正好有提醒，也弹出一次（相当于“第一次切换到”）
-            triggerReminder();
+            triggerReminder(); // 页面加载时，如果(1,1)有提醒则弹出（实际上(1,1)没有提醒）
         }
 
         function buildMarketTable() {
@@ -724,8 +397,7 @@
         }
 
         function syncPeople(source) {
-            const val = document.getElementById(source === 'taohuo' ? 'taohuoPeople' : source === 'global' ?
-                'globalPeople' : 'yinFuPeople').value;
+            const val = document.getElementById(source === 'taohuo' ? 'taohuoPeople' : source === 'global' ? 'globalPeople' : 'yinFuPeople').value;
             if (source === 'taohuo') {
                 document.getElementById('globalPeople').value = val;
                 document.getElementById('yinFuPeople').value = val;
@@ -774,7 +446,6 @@
             document.getElementById('quarterDisplay').textContent = quarter;
             document.getElementById('expectedBudgetDisplay').textContent = expectedBudget.toLocaleString('zh-CN');
 
-            // 提醒信息（订单获取中 + 固定文字）
             const alertMsgs = [];
             const alertBadge = document.getElementById('alertBadge');
             if (isOrderActive === 1) {
@@ -795,7 +466,6 @@
             orderBadge.textContent = isOrderActive === 1 ? '📦 订单获取中' : '📦 订单未获取';
             orderBadge.style.background = isOrderActive === 1 ? 'rgba(211,47,47,0.25)' : 'rgba(255,255,255,0.15)';
 
-            // 需求期望计算
             const demandExps = products.map((p, i) => ({
                 taohuo: calcDemandExpectation(marketData[i].taohuo, people.taohuo, p.isSpecial),
                 global: calcDemandExpectation(marketData[i].global, people.global, p.isSpecial),
@@ -806,7 +476,6 @@
                 isSpecial: p.isSpecial,
             }));
 
-            // 更新市场表格期望值
             demandExps.forEach((d, i) => {
                 const te = document.getElementById('taohuoExp_' + i);
                 const ge = document.getElementById('globalExp_' + i);
@@ -816,7 +485,6 @@
                 if (ye) ye.textContent = d.yinfu;
             });
 
-            // 三种方式总需求
             const totalDemands = demandExps.map(d => ({
                 m1: (d.taohuo + d.global) * 2,
                 m2: d.taohuo + 2 * d.global + d.yinfu,
@@ -839,10 +507,8 @@
             const totalBudget2 = budgets.reduce((s, b) => s + b.m2, 0);
             const totalBudget3 = budgets.reduce((s, b) => s + b.m3, 0);
 
-            // 当前推荐方案
             const recommendMethod = getRecommendMethod();
 
-            // 预算卡片高亮
             const summaryDiv = document.getElementById('budgetSummary');
             summaryDiv.innerHTML = `
                 <div class="budget-card ${recommendMethod === 1 ? 'featured' : ''}" id="card1">
@@ -862,7 +528,6 @@
                 </div>
             `;
 
-            // 详细表格
             const detailBody = document.getElementById('budgetDetailBody');
             detailBody.innerHTML = demandExps.map((d, i) => `
                 <tr>
@@ -888,7 +553,6 @@
                 </tr>
             `;
 
-            // 差值分析
             const diffDiv = document.getElementById('budgetDiffAnalysis');
             let diffRows = '';
             for (let q = 1; q <= 4; q++) {
@@ -898,8 +562,7 @@
                 else if (method === 2) budgetVal = totalBudget2;
                 else budgetVal = totalBudget3;
                 const diff = Math.abs(budgetVal - expectedBudget);
-                const status = diff < expectedBudget * 0.05 ? '✅ 接近' : diff < expectedBudget * 0.15 ? '⚠️ 有偏差' :
-                    '🔴 偏差较大';
+                const status = diff < expectedBudget * 0.05 ? '✅ 接近' : diff < expectedBudget * 0.15 ? '⚠️ 有偏差' : '🔴 偏差较大';
                 diffRows += `
                 <tr>
                     <td>第${q}季度</td>
@@ -916,12 +579,10 @@
                 </table>
             `;
 
-            // 存储计算结果
             window._cachedSelectQtys = selectQtys;
             window._cachedDemandExps = demandExps;
             updateCrossBorder();
             updateSpecialCalc();
-            // 注意：不再在这里调用triggerReminder()，以免重复弹窗
         }
 
         function updateCrossBorder() {
