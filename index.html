@@ -3,465 +3,325 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>贾钦凯队伍专用贸易计算器</title>
+    <title>JQK数字贸易系统 - 鉴权</title>
     <style>
-        :root {
-            --bg: #f0f4f8;
-            --card-bg: #ffffff;
-            --primary: #1a73e8;
-            --primary-dark: #1557b0;
-            --danger: #d93025;
-            --warning: #f29900;
-            --success: #0d904f;
-            --border: #e0e4e8;
-            --text: #202124;
-            --text-secondary: #5f6368;
-            --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
-            --radius: 12px;
-            --radius-sm: 8px;
-            --transition: 0.2s ease;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-        .app-header {
-            background: linear-gradient(135deg, #1a3a5c 0%, #1a5276 40%, #1a73e8 100%);
-            color: #fff;
-            padding: 18px 28px;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a2342 25%, #1a2342 75%, #0a0e27 100%);
+            margin: 0;
+            padding: 20px;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 14px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .app-header h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: 0.3px; }
-        .header-badges { display: flex; gap: 10px; flex-wrap: wrap; }
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            background: rgba(255, 255, 255, 0.18);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        .badge.warning-badge {
-            background: #f29900;
-            border-color: #f29900;
-            color: #000;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(242, 153, 0, 0.5); }
-            50% { box-shadow: 0 0 0 14px rgba(242, 153, 0, 0); }
-        }
-        .container { max-width: 1400px; margin: 0 auto; padding: 20px; display: grid; gap: 20px; }
-        .card {
-            background: var(--card-bg);
-            border-radius: var(--radius);
-            padding: 22px 24px;
-            box-shadow: var(--shadow);
-            border: 1px solid var(--border);
-            transition: var(--transition);
-        }
-        .card:hover { box-shadow: var(--shadow-lg); }
-        .card-header {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--border);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .card-header .icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
-        }
-        .icon-blue { background: #e8f0fe; color: #1a73e8; }
-        .icon-green { background: #e6f4ea; color: #0d904f; }
-        .icon-orange { background: #fef7e0; color: #f29900; }
-        .icon-red { background: #fce8e6; color: #d93025; }
-        .input-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
             align-items: center;
-            margin-bottom: 10px;
-        }
-        .input-group label {
-            font-weight: 600;
-            font-size: 0.9rem;
-            min-width: 70px;
-            color: var(--text-secondary);
-        }
-        .input-group input,
-        .input-group select {
-            padding: 9px 14px;
-            border: 2px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-size: 0.9rem;
-            width: 120px;
-            transition: var(--transition);
-            background: #fafbfc;
-        }
-        .input-group input:focus,
-        .input-group select:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12);
-            background: #fff;
-        }
-        .input-group input.small-input { width: 80px; }
-        .input-group input.wide-input { width: 150px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 8px 0; }
-        table th, table td {
-            padding: 8px 10px;
-            text-align: center;
-            border: 1px solid #e8eaed;
-            white-space: nowrap;
-        }
-        table th {
-            background: #f5f6f8;
-            font-weight: 700;
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            position: sticky;
-            top: 0;
-        }
-        table tbody tr:hover { background: #fafcfd; }
-        table input {
-            width: 80px;
-            padding: 6px 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            text-align: center;
-            font-size: 0.85rem;
-            transition: var(--transition);
-        }
-        table input:focus {
-            border-color: var(--primary);
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.1);
-        }
-        .result-cell { font-weight: 700; color: var(--primary); background: #f8fafd; }
-        .result-highlight { background: #fffde7; font-weight: 700; color: #e65100; }
-        .budget-summary {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
-            margin: 16px 0;
-        }
-        .budget-card {
-            background: linear-gradient(135deg, #f8fafd 0%, #fff 100%);
-            border: 2px solid var(--border);
-            border-radius: var(--radius);
-            padding: 18px;
-            text-align: center;
-            transition: var(--transition);
+            min-height: 100vh;
+            box-sizing: border-box;
             position: relative;
+            overflow: hidden;
         }
-        .budget-card.featured {
-            border-color: var(--primary);
-            box-shadow: 0 4px 16px rgba(26, 115, 232, 0.15);
-            background: linear-gradient(135deg, #e8f0fe 0%, #ffffff 100%);
-        }
-        .budget-card h3 { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 6px; }
-        .budget-card .amount { font-size: 1.8rem; font-weight: 800; color: #1a3a5c; }
-        .budget-card.featured .amount { color: var(--primary); }
-        .budget-card .subtitle { font-size: 0.75rem; color: #888; margin-top: 4px; }
-        .alert {
-            padding: 12px 18px;
-            border-radius: var(--radius-sm);
-            margin: 10px 0;
-            font-weight: 600;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .alert-warning { background: #fef7e0; border: 1px solid #f9ab00; color: #8a5d00; }
-        .alert-info { background: #e8f0fe; border: 1px solid #4285f4; color: #1a3a5c; }
-        .alert-danger { background: #fce8e6; border: 1px solid #d93025; color: #a50e0e; }
-        .btn {
-            padding: 10px 22px;
-            border: none;
-            border-radius: var(--radius-sm);
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 0.9rem;
-            transition: var(--transition);
-            letter-spacing: 0.3px;
-        }
-        .btn-primary { background: var(--primary); color: #fff; }
-        .btn-primary:hover { background: var(--primary-dark); box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3); }
-        .btn-outline { background: #fff; border: 2px solid var(--primary); color: var(--primary); }
-        .btn-outline:hover { background: #e8f0fe; }
-        .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        @media (max-width: 900px) {
-            .grid-2col { grid-template-columns: 1fr; }
-            .budget-summary { grid-template-columns: 1fr; }
-            table { font-size: 0.7rem; }
-            table th, table td { padding: 4px 5px; }
-            .app-header h1 { font-size: 1.1rem; }
-        }
-        .scrollable-table {
-            overflow-x: auto;
-            max-height: 500px;
-            overflow-y: auto;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
-        }
-        .modal-overlay {
+        
+        body::before {
+            content: '';
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.4) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.4) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.2) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: -1;
+            animation: pulse 8s ease-in-out infinite;
         }
-        .modal-content {
-            background: #fff;
-            border-radius: 16px;
-            padding: 30px 40px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        .container {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98));
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 
+                0 0 80px rgba(59, 130, 246, 0.6),
+                0 0 40px rgba(37, 99, 235, 0.4),
+                0 25px 80px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(59, 130, 246, 0.4);
             text-align: center;
-            animation: modalPop 0.3s ease;
+            max-width: 450px;
+            width: 100%;
+            box-sizing: border-box;
+            border: 2px solid rgba(59, 130, 246, 0.7);
+            position: relative;
+            z-index: 1;
+            animation: glow 4s ease-in-out infinite;
         }
-        @keyframes modalPop {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 80px rgba(59, 130, 246, 0.6), 0 0 40px rgba(37, 99, 235, 0.4), 0 25px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(59, 130, 246, 0.4); }
+            50% { box-shadow: 0 0 100px rgba(59, 130, 246, 0.8), 0 0 60px rgba(37, 99, 235, 0.6), 0 25px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(59, 130, 246, 0.5); }
         }
-        .modal-content h2 { margin-bottom: 20px; color: var(--danger); font-size: 1.6rem; }
-        .modal-content p { font-size: 1.1rem; margin-bottom: 28px; line-height: 1.8; color: var(--text); }
-        .close-btn { margin: 0 auto; display: inline-block; }
-        .highlight-worker {
-            background-color: #ffd54f;
-            color: #000;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 1.1rem;
+        
+        h1 {
+            background: linear-gradient(90deg, #38bdf8, #60a5fa, #3b82f6, #60a5fa, #38bdf8);
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            font-size: 32px;
+            text-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
+            animation: shimmer 2s linear infinite;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+        
+        @keyframes shimmer {
+            to { background-position: 300% center; }
+        }
+        
+        .subtitle {
+            color: #60a5fa;
+            margin-bottom: 38px;
+            font-size: 14px;
+            letter-spacing: 3px;
+            opacity: 0.9;
+            text-transform: uppercase;
+        }
+        
+        .form-group {
+            margin-bottom: 30px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: bold;
+            color: #cbd5e1;
+            text-align: left;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        
+        input[type="password"] {
+            width: 100%;
+            padding: 16px 18px;
+            border: 2px solid rgba(59, 130, 246, 0.6);
+            border-radius: 10px;
+            box-sizing: border-box;
+            font-size: 15px;
+            background: rgba(30, 41, 59, 0.7);
+            color: #e2e8f0;
+            transition: all 0.3s;
+            box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.15);
+        }
+        
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 
+                0 0 30px rgba(59, 130, 246, 0.6),
+                inset 0 0 25px rgba(59, 130, 246, 0.2);
+        }
+        
+        input[type="password"]::placeholder {
+            color: #3b82f6;
+            opacity: 0.6;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 35%, #2563eb 65%, #1d4ed8 100%);
+            background-size: 200% 100%;
+            color: white;
+            padding: 18px 36px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 900;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s;
+            box-shadow: 
+                0 0 30px rgba(59, 130, 246, 0.6),
+                0 6px 20px rgba(59, 130, 246, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            animation: buttonShimmer 3s linear infinite;
+        }
+        
+        @keyframes buttonShimmer {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #60a5fa 35%, #3b82f6 65%, #2563eb 100%);
+            transform: translateY(-3px);
+            box-shadow: 
+                0 0 50px rgba(59, 130, 246, 0.9),
+                0 10px 30px rgba(59, 130, 246, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(-1px);
+        }
+        
+        button:disabled {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+            animation: none;
+        }
+        
+        .error-message {
+            color: #fca5a5;
+            margin-top: 20px;
+            font-size: 14px;
+            display: none;
+            padding: 14px;
+            background: rgba(248, 113, 113, 0.15);
+            border-radius: 8px;
+            border: 1px solid rgba(248, 113, 113, 0.4);
+            text-shadow: 0 0 10px rgba(248, 113, 113, 0.3);
+        }
+        
+        .success-message {
+            color: #86efac;
+            margin-top: 20px;
+            font-size: 14px;
+            display: none;
+            padding: 14px;
+            background: rgba(34, 197, 94, 0.15);
+            border-radius: 8px;
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            text-shadow: 0 0 10px rgba(134, 239, 172, 0.3);
+        }
+        
+        .hint {
+            color: #38bdf8;
+            font-size: 13px;
+            margin-top: 28px;
+            font-style: italic;
+            opacity: 0.9;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
         }
     </style>
 </head>
 <body>
-    <header class="app-header">
-        <h1>📊贾钦凯队伍专用贸易计算器</h1>
-        <div class="header-badges" id="headerBadges">
-            <span class="badge" id="quarterBadge">📅 年份: <strong id="yearDisplay">1</strong> 季度: <strong id="quarterDisplay">1</strong></span>
-            <span class="badge" id="orderBadge">📦 订单获取中</span>
-            <span class="badge warning-badge" id="alertBadge" style="display:none;">⚠️ 提醒</span>
-        </div>
-    </header>
-
-    <!-- 提醒弹窗 -->
-    <div class="modal-overlay" id="reminderModal" style="display: none;">
-        <div class="modal-content">
-            <h2>⚠️ 提示！！</h2>
-            <p id="reminderMessage"></p>
-            <button class="btn btn-primary close-btn" id="closeModalBtn">我知道了</button>
-        </div>
-    </div>
-
     <div class="container">
-        <!-- 顶部设置区 -->
-        <div class="card">
-            <div class="card-header"><span class="icon icon-blue">⚙️</span> 基本设置</div>
-            <div style="display:flex;flex-wrap:wrap;gap:16px;align-items:center;">
-                <div class="input-group">
-                    <label>年份:</label>
-                    <select id="currentYear">
-                        <option value="1">第1年</option><option value="2">第2年</option>
-                        <option value="3">第3年</option><option value="4">第4年</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>当前季度:</label>
-                    <select id="currentQuarter">
-                        <option value="1" selected>第1季度</option><option value="2">第2季度</option>
-                        <option value="3">第3季度</option><option value="4">第4季度</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>订单获取中:</label>
-                    <select id="isOrderActive">
-                        <option value="1">是</option>
-                        <option value="0" selected>否</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>预期预算:</label>
-                    <input type="number" id="expectedBudget" value="8000000" step="100000" class="wide-input">
-                </div>
-                <div class="input-group">
-                    <label>汇率(USD/CNY):</label>
-                    <input type="number" id="exchangeRate" value="7.18" step="0.01" style="width:100px;">
-                </div>
-                <div class="input-group">
-                    <label>关税税率:</label>
-                    <input type="number" id="tariffRate" value="0.0563" step="0.0001" style="width:100px;">
-                </div>
-            </div>
-            <div id="alertMessages" style="margin-top:10px;"></div>
+        <h1>JQK数字贸易系统</h1>
+        <p class="subtitle">请输入鉴权码以访问系统</p>
+        
+        <div class="form-group">
+            <label for="authCode">鉴权码</label>
+            <input type="password" id="authCode" placeholder="请输入鉴权码" autocomplete="off">
         </div>
-
-        <!-- 三大市场数据输入 -->
-        <div class="card">
-            <div class="card-header"><span class="icon icon-blue">🏪</span> 三大市场数据输入（淘货 / 全球贸易通 / 音符直播）</div>
-            <div style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;">
-                <div class="input-group">
-                    <label>淘货人数:</label>
-                    <input type="number" id="taohuoPeople" value="12" min="1" style="width:90px;">
-                </div>
-                <div class="input-group">
-                    <label>全球贸易通人数:</label>
-                    <input type="number" id="globalPeople" value="12" min="1" style="width:90px;">
-                </div>
-                <div class="input-group">
-                    <label>音符直播人数:</label>
-                    <input type="number" id="yinFuPeople" value="12" min="1" style="width:90px;">
-                </div>
-                <button class="btn btn-outline" id="resetMarketBtn">🔄 重置市场数据</button>
-            </div>
-            <div class="scrollable-table">
-                <table id="marketTable">
-                    <thead>
-                        <tr>
-                            <th>产品</th>
-                            <th>淘货<br>市场总需求</th>
-                            <th>淘货<br>需求期望(季)</th>
-                            <th>全球贸易通<br>市场总需求</th>
-                            <th>全球贸易通<br>需求期望(季)</th>
-                            <th>音符直播<br>市场总需求</th>
-                            <th>音符直播<br>需求期望(季)</th>
-                            <th>单价(¥)</th>
-                            <th>赛时进货倍率</th>
-                        </tr>
-                    </thead>
-                    <tbody id="marketTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- 三种预算方式结果（高亮推荐方案） -->
-        <div class="card">
-            <div class="card-header"><span class="icon icon-green">💰</span> 三种预算计算方式对比</div>
-            <div class="budget-summary" id="budgetSummary"></div>
-            <div class="scrollable-table">
-                <table id="budgetDetailTable">
-                    <thead>
-                        <tr>
-                            <th>产品</th>
-                            <th>方式1总需求<br>(2淘货2全球)</th>
-                            <th>方式1<br>实时选品量</th>
-                            <th>方式1<br>进货预算</th>
-                            <th>方式2总需求<br>(1淘货2全球+音符)</th>
-                            <th>方式2<br>实时选品量</th>
-                            <th>方式2<br>进货预算</th>
-                            <th>方式3总需求<br>(1淘货+1音符)</th>
-                            <th>方式3<br>实时选品量</th>
-                            <th>方式3<br>进货预算</th>
-                        </tr>
-                    </thead>
-                    <tbody id="budgetDetailBody"></tbody>
-                </table>
-            </div>
-            <div style="margin-top:12px;padding:12px;background:#f8fafd;border-radius:8px;">
-                <strong>📋 预算差值分析（相对于预期预算 <span id="expectedBudgetDisplay">8,000,000</span> 元）</strong>
-                <div id="budgetDiffAnalysis" style="margin-top:8px;"></div>
-            </div>
-        </div>
-
-        <!-- 跨境调动花费计算 -->
-        <div class="card">
-            <div class="card-header"><span class="icon icon-orange">🚢</span> 跨境调动花费计算</div>
-            <div class="input-group" style="margin-bottom:12px;">
-                <label>选用预算方式:</label>
-                <select id="crossBorderBudgetMode">
-                    <option value="0">方式1 - 2淘货2全球</option>
-                    <option value="1">方式2 - 1淘货2全球+音符</option>
-                    <option value="2" selected>方式3 - 1淘货+1音符</option>
-                </select>
-            </div>
-            <div class="scrollable-table">
-                <table id="crossBorderTable">
-                    <thead>
-                        <tr>
-                            <th>产品</th><th>个数</th><th>体积(m³)</th><th>体积运费</th><th>重量运费</th>
-                            <th>实际运费</th><th>原材料价格</th><th>保险费</th><th>装箱费分摊</th>
-                        </tr>
-                    </thead>
-                    <tbody id="crossBorderBody"></tbody>
-                </table>
-            </div>
-            <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;background:#fffde7;padding:14px 18px;border-radius:8px;">
-                <strong>📦 总费用(人民币):</strong>
-                <span style="font-size:1.5rem;font-weight:800;color:#d93025;" id="totalCostCNY">0.00</span>
-                <strong>💵 总费用(美元):</strong>
-                <span style="font-size:1.5rem;font-weight:800;color:#1a73e8;" id="totalCostUSD">0.00</span>
-                <span style="color:#888;font-size:0.8rem;">(含关税)</span>
-            </div>
-        </div>
-
-        <!-- 电子狗 / 智能车机 / 安全座椅 -->
-        <div class="grid-2col">
-            <div class="card">
-                <div class="card-header"><span class="icon icon-red">🐕</span> 电子狗计算</div>
-                <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
-                    <label>已有机器:</label><input type="number" id="dogExisting" value="1" min="0" class="small-input">
-                    <label>需求量:</label><input type="number" id="dogDemand" value="0" min="0" class="small-input">
-                    <label>预期机器:</label><input type="number" id="dogExpected" value="1" min="0" class="small-input">
-                </div>
-                <div style="margin-top:8px;font-size:0.9rem;" id="dogResult"></div>
-            </div>
-            <div class="card">
-                <div class="card-header"><span class="icon icon-red">🚗</span> 智能车机计算</div>
-                <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
-                    <label>已有机器:</label><input type="number" id="carExisting" value="0" min="0" class="small-input">
-                    <label>需求量:</label><input type="number" id="carDemand" value="0" min="0" class="small-input">
-                    <label>预期机器:</label><input type="number" id="carExpected" value="1" min="0" class="small-input">
-                </div>
-                <div style="margin-top:8px;font-size:0.9rem;" id="carResult"></div>
-            </div>
-            <div class="card" style="grid-column:1/-1;">
-                <div class="card-header"><span class="icon icon-red">💺</span> 安全座椅计算</div>
-                <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
-                    <label>已有机器:</label><input type="number" id="seatExisting" value="0" min="0" class="small-input">
-                    <label>需求量:</label><input type="number" id="seatDemand" value="0" min="0" class="small-input">
-                    <label>预期机器:</label><input type="number" id="seatExpected" value="1" min="0" class="small-input">
-                </div>
-                <div style="margin-top:8px;font-size:0.9rem;" id="seatResult"></div>
-            </div>
-        </div>
+        
+        <button id="submitBtn" onclick="verifyAuth()">验证</button>
+        
+        <p class="error-message" id="errorMsg">鉴权码错误，请重新输入</p>
+        <p class="success-message" id="successMsg">验证成功，正在跳转...</p>
+        
+        <p class="hint">如需帮助请联系管理员</p>
     </div>
 
-    <!-- 引入外部 JavaScript 文件 -->
-    <script src="calculator.js" defer></script>
+    <script>
+        const VIKA_TOKEN = 'uskNUrvWvJoD3VuQ5zW7GYH';
+        const DATASHEET_ID = 'dstLZmhhzq83Q8DKFc';
+        const VIEW_ID = 'viwPT1uwLkzGk';
+        
+        async function fetchAuthRecords() {
+            try {
+                const response = await fetch(`https://api.vika.cn/fusion/v1/datasheets/${DATASHEET_ID}/records?viewId=${VIEW_ID}`, {
+                    headers: {
+                        'Authorization': `Bearer ${VIKA_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const result = await response.json();
+                if (result.success && result.data && result.data.records) {
+                    return result.data.records;
+                }
+                return [];
+            } catch (error) {
+                console.error('获取鉴权码失败:', error);
+                return [];
+            }
+        }
+        
+        async function deleteAuthRecord(recordId) {
+            try {
+                const response = await fetch(`https://api.vika.cn/fusion/v1/datasheets/${DATASHEET_ID}/records?recordIds=${recordId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${VIKA_TOKEN}`
+                    }
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    return true;
+                }
+                console.error('删除鉴权码失败:', result);
+                return false;
+            } catch (error) {
+                console.error('删除鉴权码出错:', error);
+                return false;
+            }
+        }
+        
+        async function verifyAuth() {
+            const input = document.getElementById('authCode').value;
+            const errorMsg = document.getElementById('errorMsg');
+            const successMsg = document.getElementById('successMsg');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+            
+            if (!input) {
+                errorMsg.style.display = 'block';
+                errorMsg.textContent = '请输入鉴权码';
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = '验证中...';
+            
+            const authRecords = await fetchAuthRecords();
+            const matchedRecord = authRecords.find(record => record.fields['api-number'] === input);
+            
+            if (matchedRecord) {
+                successMsg.style.display = 'block';
+                successMsg.textContent = '验证成功，正在跳转...';
+                submitBtn.textContent = '请稍候...';
+                
+                await deleteAuthRecord(matchedRecord.recordId);
+                
+                setTimeout(() => {
+                    window.location.href = 'count.html';
+                }, 1000);
+            } else {
+                errorMsg.style.display = 'block';
+                errorMsg.textContent = '鉴权码错误，请重新输入';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '验证';
+                document.getElementById('authCode').value = '';
+                document.getElementById('authCode').focus();
+            }
+        }
+        
+        document.getElementById('authCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verifyAuth();
+            }
+        });
+    </script>
 </body>
 </html>
